@@ -230,6 +230,9 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
+              "C:\\Users\\MONSTER\\Documents\\WalpaperApp\\WallpaperApp.Application\\WallpaperApp.Application.csproj": {
+                "projectPath": "C:\\Users\\MONSTER\\Documents\\WalpaperApp\\WallpaperApp.Application\\WallpaperApp.Application.csproj"
+              },
               "C:\\Users\\MONSTER\\Documents\\WalpaperApp\\WallpaperApp.Domain\\WallpaperApp.Domain.csproj": {
                 "projectPath": "C:\\Users\\MONSTER\\Documents\\WalpaperApp\\WallpaperApp.Domain\\WallpaperApp.Domain.csproj"
               }

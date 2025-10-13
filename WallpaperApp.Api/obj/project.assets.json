@@ -1731,6 +1731,7 @@
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "9.0.9",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.9",
+          "WallpaperApp.Application": "1.0.0",
           "WallpaperApp.Domain": "1.0.0"
         },
         "compile": {
