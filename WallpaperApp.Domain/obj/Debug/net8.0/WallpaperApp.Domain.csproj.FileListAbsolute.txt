@@ -1,0 +1,12 @@
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\bin\Debug\net8.0\WallpaperApp.Domain.deps.json
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\bin\Debug\net8.0\WallpaperApp.Domain.dll
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\bin\Debug\net8.0\WallpaperApp.Domain.pdb
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\WallpaperApp.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\WallpaperApp.Domain.AssemblyInfoInputs.cache
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\WallpaperApp.Domain.AssemblyInfo.cs
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\WallpaperApp.Domain.csproj.CoreCompileInputs.cache
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\WallpaperApp.Domain.sourcelink.json
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\WallpaperApp.Domain.dll
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\refint\WallpaperApp.Domain.dll
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\WallpaperApp.Domain.pdb
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\obj\Debug\net8.0\ref\WallpaperApp.Domain.dll
