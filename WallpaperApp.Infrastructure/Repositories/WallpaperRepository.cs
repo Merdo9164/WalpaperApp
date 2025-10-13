@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WallpaperApp.Domain.Entities;
+using WalpaperApp.Application.Interfaces;
 using WalpaperApp.Infrastructure.Data;
 
 namespace WalpaperApp.Infrastructure.Repositories
@@ -13,14 +14,20 @@ namespace WalpaperApp.Infrastructure.Repositories
             _context = context;
         }
 
-        // BURAYA EKLE: Veritabanı sorgusu
         public async Task<IEnumerable<Wallpaper>> GetAllAsync()
         {
             return await _context.Wallpapers.ToListAsync();
         }
-    }
 
-    public interface IWallpaperRepository
-    {
+        public async Task<Wallpaper> GetByIdAsync(int id)
+        {
+            return await _context.Wallpapers.FindAsync(id);
+        }
+
+        public async Task AddAsync(Wallpaper wallpaper)
+        {
+            await _context.Wallpapers.AddAsync(wallpaper);
+            await _context.SaveChangesAsync();
+        }
     }
 }

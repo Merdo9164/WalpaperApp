@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WallpaperApp.Domain\WallpaperApp.Domain.csproj" />
+    <ProjectReference Include="..\WallpaperApp.Application\WallpaperApp.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,7 +9,7 @@ namespace WalpaperApp.Infrastructure.Data
         {
 
         }
-        
+    
         public DbSet<Wallpaper> Wallpapers{ get; set; }
     }
 }
