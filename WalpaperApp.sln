@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WallpaperApp.Application", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WallpaperApp.Infrastructure", "WallpaperApp.Infrastructure\WallpaperApp.Infrastructure.csproj", "{69087248-6BC9-4508-90CB-3E613F174C82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WallpaperApp.Tests", "WallpaperApp.Tests\WallpaperApp.Tests.csproj", "{E8F3229D-F651-4BB8-B2A9-C392BFC0522C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{69087248-6BC9-4508-90CB-3E613F174C82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69087248-6BC9-4508-90CB-3E613F174C82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69087248-6BC9-4508-90CB-3E613F174C82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8F3229D-F651-4BB8-B2A9-C392BFC0522C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8F3229D-F651-4BB8-B2A9-C392BFC0522C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8F3229D-F651-4BB8-B2A9-C392BFC0522C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8F3229D-F651-4BB8-B2A9-C392BFC0522C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
