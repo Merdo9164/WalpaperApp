@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WallpaperApp.Application.Dtos;
+using WallpaperApp.Domain.Entities;
 using WalpaperApp.Application.Interfaces;
 
 namespace WalpaperApp.Api.Controllers
@@ -29,5 +30,38 @@ namespace WalpaperApp.Api.Controllers
 
             return Ok(wallpaperDtos);
         }
+
+        [HttpPost]
+        public async Task<ActionResult<WallpaperDto>> CreateWallpaper([FromBody] CreateWallpaperDto createDto)
+        {
+            if (string.IsNullOrWhiteSpace(createDto.Title) || string.IsNullOrWhiteSpace(createDto.ImageUrl))
+            {
+                return BadRequest("Title and ImageUrl are required"); // eksik alan varsa dönülür
+            }
+
+            var wallpaper = new Wallpaper
+            {
+                Title = createDto.Title,
+                ImageUrl = createDto.ImageUrl
+
+            };
+            var created = await _repository.AddAsync(wallpaper);
+
+            var result = new WallpaperDto
+            {
+                Id = created.Id,
+                Title = created.Title,
+                ImageUrl = created.ImageUrl
+            };
+
+            return CreatedAtAction(nameof(GetWallpapers), new { id = created.Id }, result); // eklenen veri başarıyla döner
+            
+            // Dto ve Entity dönüşümü yapılır
+        
+         }
     }
-}
+
+
+
+ }
+
