@@ -57,6 +57,7 @@ namespace WalpaperApp.Api.Controllers
             return CreatedAtAction(nameof(GetWallpapers), new { id = created.Id }, result); // eklenen veri başarıyla döner
             
             // Dto ve Entity dönüşümü yapılır
+            //Kullanıcıya doğru HTTP durum kodlarını döndürür
         
          }
     }
