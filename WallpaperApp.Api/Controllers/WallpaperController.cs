@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using WallpaperApp.Application.Dtos;       // DTO için
-using WalpaperApp.Application.Interfaces; // Repository interface
+using WallpaperApp.Application.Dtos;
+using WalpaperApp.Application.Interfaces;
 
 namespace WalpaperApp.Api.Controllers
 {
@@ -15,14 +15,11 @@ namespace WalpaperApp.Api.Controllers
             _repository = repository;
         }
 
-        // GET: api/wallpaper
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WallpaperDto>>> GetWallpapers()
         {
-            // Repository'den tüm wallpaper'ları çek
             var wallpapers = await _repository.GetAllAsync();
 
-            // Entity'yi DTO'ya dönüştür
             var wallpaperDtos = wallpapers.Select(w => new WallpaperDto
             {
                 Id = w.Id,

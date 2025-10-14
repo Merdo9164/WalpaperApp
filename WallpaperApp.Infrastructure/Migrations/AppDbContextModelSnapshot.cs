@@ -40,6 +40,20 @@ namespace WallpaperApp.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Wallpapers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ImageUrl = "https://example.com/sunset.jpg",
+                            Title = "Sunset"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ImageUrl = "https://example.com/mountains.jpg",
+                            Title = "Mountains"
+                        });
                 });
 #pragma warning restore 612, 618
         }
