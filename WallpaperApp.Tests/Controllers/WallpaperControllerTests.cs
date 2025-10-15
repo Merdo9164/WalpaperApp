@@ -1,52 +1,47 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using WallpaperApp.Domain.Entities;
-using WalpaperApp.Infrastructure.Data;
 using Xunit;
+using WallpaperApp.Application.Dtos;
 
 namespace WallpaperApp.Tests.Controllers
 {
-    public class WallpaperControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    public class WallpaperControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
 
-        public WallpaperControllerTests(WebApplicationFactory<Program> factory)
+        public WallpaperControllerTests(CustomWebApplicationFactory<Program> factory)
         {
-            _client = factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    // Remove existing DbContext
-                    var descriptor = services.SingleOrDefault(
-                        d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
-                    if (descriptor != null) services.Remove(descriptor);
-
-                    // Add InMemory DbContext
-                    services.AddDbContext<AppDbContext>(options =>
-                        options.UseInMemoryDatabase("TestDb"));
-
-                    // Seed data
-                    var sp = services.BuildServiceProvider();
-                    using var scope = sp.CreateScope();
-                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    db.Wallpapers.Add(new Wallpaper { Id = 1, Title = "Test Wallpaper", ImageUrl = "http://example.com/test.jpg" });
-                    db.SaveChanges();
-                });
-            }).CreateClient();
+            _client = factory.CreateClient();
         }
 
         [Fact]
-        public async Task GetAll_ShouldReturnOk()
+        public async Task GetById_ShouldReturnWallpaper_WhenExists()
         {
-            var response = await _client.GetAsync("/api/wallpaper");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            // Arrange
+            var responseAll = await _client.GetAsync("/api/wallpaper");
+            responseAll.EnsureSuccessStatusCode();
 
-            var wallpapers = await response.Content.ReadFromJsonAsync<List<Wallpaper>>();
-            Assert.Single(wallpapers);
-            //denemeeeeee
+            var wallpapers = await responseAll.Content.ReadFromJsonAsync<List<WallpaperDto>>();
+            var firstId = wallpapers!.First().Id;
+
+            // Act
+            var response = await _client.GetAsync($"/api/wallpaper/{firstId}");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var wallpaper = await response.Content.ReadFromJsonAsync<WallpaperDto>();
+            Assert.NotNull(wallpaper);
+            Assert.Equal(firstId, wallpaper!.Id);
+        }
+
+        [Fact]
+        public async Task GetById_ShouldReturnNotFound_WhenNotExists()
+        {
+            // Act
+            var response = await _client.GetAsync("/api/wallpaper/9999");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
     }
 }
