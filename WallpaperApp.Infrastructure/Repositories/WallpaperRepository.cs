@@ -25,10 +25,12 @@ namespace WalpaperApp.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return wallpaper;
         }
-        
+
         public async Task<Wallpaper?> GetByIdAsync(int id)
         {
             return await _context.Wallpapers.FirstOrDefaultAsync(w => w.Id == id);
         }
+        
+        
     }
 }

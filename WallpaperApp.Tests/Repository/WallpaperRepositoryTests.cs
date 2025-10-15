@@ -1,47 +1,47 @@
-using Xunit;
+using Microsoft.EntityFrameworkCore;
 using WalpaperApp.Infrastructure.Data;
 using WalpaperApp.Infrastructure.Repositories;
 using WallpaperApp.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using Xunit;
 using System.Threading.Tasks;
-using System.Data.Common;
-using System.Reflection;
-using System.Linq;
 
-namespace WallpaperApp.Tests.Repositories
+namespace WallpaperApp.Tests.Repository
 {
     public class WallpaperRepositoryTests
     {
-        private async Task<AppDbContext> GetDbContext()
+        private AppDbContext CreateInMemoryContext()
         {
             var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: "WallpaperTestDb")
-            .Options;
-
-            var context = new AppDbContext(options);
-            await context.Wallpapers.AddRangeAsync(
-                new Wallpaper { Id = 1, Title = "Wallpaper 1", ImageUrl = "url1" },
-                new Wallpaper { Id = 2, Title = "Wallpaper 2 ", ImageUrl = "url2" }
-            );
-            await context.SaveChangesAsync();
-
-            return context;
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            return new AppDbContext(options);
         }
 
         [Fact]
-        public async Task GetAllAsync_ShouldReturnAllWallpapers()
+        public async Task GetByIdAsync_ReturnsWallpaper_WhenExists()
         {
-            //Arrange
-            var context = await GetDbContext();
-            var repository = new WallpaperRepository(context);
+            // Arrange
+            var context = CreateInMemoryContext();
+            var repo = new WallpaperRepository(context);
+            var wallpaper = new Wallpaper { Title = "T", ImageUrl = "u" };
+            await repo.AddAsync(wallpaper);
 
-            //Act
-            var result = await repository.GetAllAsync();
+            // Act
+            var result = await repo.GetByIdAsync(wallpaper.Id);
 
-            //Assert
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(2, result.Count());
+            Assert.Equal(wallpaper.Title, result!.Title);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_ReturnsNull_WhenNotExists()
+        {
+            var context = CreateInMemoryContext();
+            var repo = new WallpaperRepository(context);
+
+            var result = await repo.GetByIdAsync(999);
+            Assert.Null(result);
         }
     }
 }

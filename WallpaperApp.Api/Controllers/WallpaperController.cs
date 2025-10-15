@@ -79,7 +79,7 @@ namespace WalpaperApp.Api.Controllers
                 };
                 return Ok(dto);
             }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 return StatusCode(500, "An unexpected error occurred.");
                 } 
