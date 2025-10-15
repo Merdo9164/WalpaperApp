@@ -361,13 +361,21 @@
               "target": "Package",
               "version": "[17.8.0, )"
             },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.4, )"
+            },
+            "System.Net.Http": {
+              "target": "Package",
+              "version": "[4.3.4, )"
+            },
             "coverlet.collector": {
               "target": "Package",
               "version": "[6.0.0, )"
             },
             "xunit": {
               "target": "Package",
-              "version": "[2.5.3, )"
+              "version": "[2.9.3, )"
             },
             "xunit.runner.visualstudio": {
               "target": "Package",
