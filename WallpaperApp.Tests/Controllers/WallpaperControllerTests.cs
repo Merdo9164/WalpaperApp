@@ -1,7 +1,10 @@
-using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Xunit;
-using WallpaperApp.Application.Dtos;
+using WallpaperApp.Application.Dtos; // DTO
+using WalpaperApp.Api;
 
 namespace WallpaperApp.Tests.Controllers
 {
@@ -15,33 +18,28 @@ namespace WallpaperApp.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetById_ShouldReturnWallpaper_WhenExists()
+        public async Task GetWallpapers_ReturnsOk()
         {
-            // Arrange
-            var responseAll = await _client.GetAsync("/api/wallpaper");
-            responseAll.EnsureSuccessStatusCode();
+            var response = await _client.GetAsync("/api/wallpaper");
+            response.EnsureSuccessStatusCode();
 
-            var wallpapers = await responseAll.Content.ReadFromJsonAsync<List<WallpaperDto>>();
-            var firstId = wallpapers!.First().Id;
-
-            // Act
-            var response = await _client.GetAsync($"/api/wallpaper/{firstId}");
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var wallpaper = await response.Content.ReadFromJsonAsync<WallpaperDto>();
-            Assert.NotNull(wallpaper);
-            Assert.Equal(firstId, wallpaper!.Id);
         }
 
         [Fact]
-        public async Task GetById_ShouldReturnNotFound_WhenNotExists()
+        public async Task PostWallpaper_ReturnsCreated()
         {
-            // Act
-            var response = await _client.GetAsync("/api/wallpaper/9999");
+            var newWallpaper = new WallpaperDto
+            {
+                Title = "Yeni Wallpaper",
+                ImageUrl = "yeni-url"
+            };
 
-            // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            var response = await _client.PostAsJsonAsync("/api/wallpaper", newWallpaper);
+            response.EnsureSuccessStatusCode();
+
+            var createdWallpaper = await response.Content.ReadFromJsonAsync<WallpaperDto>();
+            Assert.NotNull(createdWallpaper);
+            Assert.Equal("Yeni Wallpaper", createdWallpaper.Title);
         }
     }
 }

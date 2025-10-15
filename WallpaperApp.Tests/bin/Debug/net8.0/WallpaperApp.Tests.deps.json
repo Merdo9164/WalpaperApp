@@ -2466,6 +2466,7 @@
       "WallpaperApp.Api/1.0.0": {
         "dependencies": {
           "Microsoft.AspNetCore.OpenApi": "8.0.20",
+          "Microsoft.EntityFrameworkCore.InMemory": "9.0.10",
           "Swashbuckle.AspNetCore": "6.6.2",
           "WallpaperApp.Application": "1.0.0",
           "WallpaperApp.Infrastructure": "1.0.0"
