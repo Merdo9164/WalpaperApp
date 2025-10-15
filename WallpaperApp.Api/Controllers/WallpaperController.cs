@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc;
 using WallpaperApp.Application.Dtos;
 using WallpaperApp.Domain.Entities;
@@ -55,11 +56,36 @@ namespace WalpaperApp.Api.Controllers
             };
 
             return CreatedAtAction(nameof(GetWallpapers), new { id = created.Id }, result); // eklenen veri başarıyla döner
-            
+
             // Dto ve Entity dönüşümü yapılır
             //Kullanıcıya doğru HTTP durum kodlarını döndürür
-        
+
+        }
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<WallpaperDto>> GetWallpaper(int id)
+        {
+            try
+            {
+                var wallpaper = await _repository.GetByIdAsync(id);
+
+                if (wallpaper == null)
+                    return NotFound();
+
+                var dto = new WallpaperDto
+                {
+                    Id = wallpaper.Id,
+                    Title = wallpaper.Title,
+                    ImageUrl = wallpaper.ImageUrl
+                };
+                return Ok(dto);
+            }
+                catch (Exception)
+                {
+                return StatusCode(500, "An unexpected error occurred.");
+                } 
          }
+                
+
     }
 
 

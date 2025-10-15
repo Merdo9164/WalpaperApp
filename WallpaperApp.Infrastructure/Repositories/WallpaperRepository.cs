@@ -19,11 +19,18 @@ namespace WalpaperApp.Infrastructure.Repositories
             return await _context.Wallpapers.ToListAsync();
         }
 
-        public async Task <Wallpaper> AddAsync(Wallpaper wallpaper)
+        public async Task<Wallpaper> AddAsync(Wallpaper wallpaper)
         {
             _context.Wallpapers.Add(wallpaper);
             await _context.SaveChangesAsync();
             return wallpaper;
         }
+
+        public async Task<Wallpaper?> GetByIdAsync(int id)
+        {
+            return await _context.Wallpapers.FirstOrDefaultAsync(w => w.Id == id);
+        }
+        
+        
     }
 }
