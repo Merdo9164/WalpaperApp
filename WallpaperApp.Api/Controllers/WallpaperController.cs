@@ -55,11 +55,32 @@ namespace WalpaperApp.Api.Controllers
             };
 
             return CreatedAtAction(nameof(GetWallpapers), new { id = created.Id }, result); // eklenen veri başarıyla döner
-            
+
             // Dto ve Entity dönüşümü yapılır
             //Kullanıcıya doğru HTTP durum kodlarını döndürür
-        
-         }
+
+        }
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<WallpaperDto>> GetWallpaper(int id)
+        {
+            var wallpaper = await _repository.GetByIdAsync(id);
+
+            if (wallpaper == null)
+                return NotFound();
+
+            var dto = new WallpaperDto
+            {
+                Id = wallpaper.Id,
+                Title = wallpaper.Title,
+                ImageUrl = wallpaper.ImageUrl
+            };
+            return Ok(dto);
+        }
+         
+
+
+
+
     }
 
 
