@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc;
 using WallpaperApp.Application.Dtos;
 using WallpaperApp.Domain.Entities;
@@ -63,23 +64,27 @@ namespace WalpaperApp.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<WallpaperDto>> GetWallpaper(int id)
         {
-            var wallpaper = await _repository.GetByIdAsync(id);
-
-            if (wallpaper == null)
-                return NotFound();
-
-            var dto = new WallpaperDto
+            try
             {
-                Id = wallpaper.Id,
-                Title = wallpaper.Title,
-                ImageUrl = wallpaper.ImageUrl
-            };
-            return Ok(dto);
-        }
-         
+                var wallpaper = await _repository.GetByIdAsync(id);
 
+                if (wallpaper == null)
+                    return NotFound();
 
-
+                var dto = new WallpaperDto
+                {
+                    Id = wallpaper.Id,
+                    Title = wallpaper.Title,
+                    ImageUrl = wallpaper.ImageUrl
+                };
+                return Ok(dto);
+            }
+                catch (Exception ex)
+                {
+                return StatusCode(500, "An unexpected error occurred.");
+                } 
+         }
+                
 
     }
 
