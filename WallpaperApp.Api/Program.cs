@@ -1,24 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using WalpaperApp.Infrastructure.Data;
-using WalpaperApp.Infrastructure.Repositories;
 using WalpaperApp.Application.Interfaces;
-
+using WalpaperApp.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
+// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// DbContext: SQL Server
+// 🔹 Veritabanı bağlantısı (InMemory kullanıyoruz)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseInMemoryDatabase("WallpaperDb"));
 
+// 🔹 Repository kayıtları
 builder.Services.AddScoped<IWallpaperRepository, WallpaperRepository>();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -28,8 +29,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
 
-// Partial class for WebApplicationFactory in tests
+// ✅ Bu satır testler için zorunludur
 public partial class Program { }
