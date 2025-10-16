@@ -1,6 +1,6 @@
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using WalpaperApp.Api;
+using WallpaperApp.Application.Dtos;
 using WallpaperApp.Domain.Entities;
 using Xunit;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -47,20 +47,61 @@ namespace WallpaperApp.Tests.Controllers
             Assert.Equal("test-url", createdWallpaper.ImageUrl);
         }
 
-        // POST endpoint testi - hata durumu (örneğin boş title)
         [Fact]
         public async Task PostWallpaper_WithEmptyTitle_ReturnsBadRequest()
         {
-            var newWallpaper = new Wallpaper
+            var invalidWallpaper = new WallpaperDto
             {
-                Title = "",
-                ImageUrl = "test-url"
+                Title = "", // Boş title
+                ImageUrl = "valid-url"
             };
 
-            var response = await _client.PostAsJsonAsync("/api/wallpaper", newWallpaper);
+            var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
 
-            Assert.False(response.IsSuccessStatusCode);
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
+
+        [Fact]
+        public async Task PostWallpaper_WithEmptyImageUrl_ReturnsBadRequest()
+        {
+            var invalidWallpaper = new WallpaperDto
+            {
+                Title = "Valid Title",
+                ImageUrl = "" // Boş imageUrl
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
+
+            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PostWallpaper_WithNullObject_ReturnsBadRequest()
+        {
+            WallpaperDto? invalidWallpaper = null;
+
+            var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
+
+            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetWallpapers_WrongUrl_ReturnsNotFound()
+        {
+            var response = await _client.GetAsync("/api/wallpapers-wrong"); // Yanlış endpoint
+            Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetWallpapers_ReturnsListSuccessfully()
+        {
+            var response = await _client.GetAsync("/api/wallpaper");
+            response.EnsureSuccessStatusCode();
+
+            var wallpapers = await response.Content.ReadFromJsonAsync<List<WallpaperDto>>();
+            Assert.NotNull(wallpapers);
+            Assert.True(wallpapers!.Count >= 0); // boş da olabilir, dolu da
+        }
+
     }
 }
