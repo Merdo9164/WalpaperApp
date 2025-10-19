@@ -478,3 +478,4 @@ C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Tests\obj\Debug\net8.0\refin
 C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Tests\obj\Debug\net8.0\WallpaperApp.Tests.pdb
 C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Tests\obj\Debug\net8.0\WallpaperApp.Tests.genruntimeconfig.cache
 C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Tests\obj\Debug\net8.0\ref\WallpaperApp.Tests.dll
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Tests\bin\Debug\net8.0\appsettings.Production.json
