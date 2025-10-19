@@ -8,6 +8,6 @@ namespace WalpaperApp.Infrastructure.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Wallpaper> Wallpapers { get; set; }
-        //jhhjhjhjhjhhj
+        
     }
 }

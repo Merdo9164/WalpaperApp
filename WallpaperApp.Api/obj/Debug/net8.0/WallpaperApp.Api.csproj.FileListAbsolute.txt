@@ -181,3 +181,4 @@ C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Api\obj\Debug\net8.0\Wallpap
 C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Api\obj\Debug\net8.0\WallpaperApp.Api.genruntimeconfig.cache
 C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Api\obj\Debug\net8.0\ref\WallpaperApp.Api.dll
 C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Api\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.InMemory.dll
+C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Api\bin\Debug\net8.0\appsettings.Production.json
