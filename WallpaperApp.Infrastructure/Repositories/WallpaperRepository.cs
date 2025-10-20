@@ -14,11 +14,13 @@ namespace WalpaperApp.Infrastructure.Repositories
             _context = context;
         }
 
+        // Tüm duvar kağıtlarını getirir
         public async Task<IEnumerable<Wallpaper>> GetAllAsync()
         {
             return await _context.Wallpapers.ToListAsync();
         }
 
+        // Yeni bir duvar kağıdı ekler
         public async Task<Wallpaper> AddAsync(Wallpaper wallpaper)
         {
             _context.Wallpapers.Add(wallpaper);
@@ -26,11 +28,15 @@ namespace WalpaperApp.Infrastructure.Repositories
             return wallpaper;
         }
 
-        public async Task<Wallpaper?> GetByIdAsync(int id)
+        // ID'ye göre duvar kağıdını getirir (Guid kullanımı)
+        public async Task<Wallpaper?> GetByIdAsync(Guid id)
         {
             return await _context.Wallpapers.FirstOrDefaultAsync(w => w.Id == id);
         }
-        
-        
+
+        public Task DeleteAsync(Guid id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
