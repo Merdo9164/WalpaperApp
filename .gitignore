@@ -1,0 +1,45 @@
+# Visual Studio / .NET build output
+bin/
+obj/
+publish/
+PublishOutput/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Logs
+*.log
+*.tlog
+
+# .NET secrets, settings
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+appsettings.*.json
+
+# Database local files
+*.mdf
+*.ldf
+
+# Build results
+*.dll
+*.exe
+*.pdb
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+
+# Publish artifacts
+*.pubxml
+*.publish.xml
