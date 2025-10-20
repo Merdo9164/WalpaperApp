@@ -3,6 +3,7 @@ using WalpaperApp.Infrastructure.Data;
 using WalpaperApp.Infrastructure.Repositories;
 using WallpaperApp.Domain.Entities;
 using Xunit;
+using System;
 using System.Threading.Tasks;
 
 namespace WallpaperApp.Tests.Repository
@@ -23,7 +24,11 @@ namespace WallpaperApp.Tests.Repository
             // Arrange
             var context = CreateInMemoryContext();
             var repo = new WallpaperRepository(context);
-            var wallpaper = new Wallpaper { Title = "T", ImageUrl = "u" };
+            var wallpaper = new Wallpaper 
+            { 
+                Title = "T", 
+                ImageUrl = "u" 
+            };
             await repo.AddAsync(wallpaper);
 
             // Act
@@ -32,6 +37,7 @@ namespace WallpaperApp.Tests.Repository
             // Assert
             Assert.NotNull(result);
             Assert.Equal(wallpaper.Title, result!.Title);
+            Assert.Equal(wallpaper.Id, result.Id);
         }
 
         [Fact]
@@ -40,8 +46,30 @@ namespace WallpaperApp.Tests.Repository
             var context = CreateInMemoryContext();
             var repo = new WallpaperRepository(context);
 
-            var result = await repo.GetByIdAsync(999);
+            // Geçerli olmayan GUID kullanıyoruz
+            var nonExistentId = Guid.NewGuid();
+
+            var result = await repo.GetByIdAsync(nonExistentId);
             Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task AddAsync_AssignsGuidId()
+        {
+            var context = CreateInMemoryContext();
+            var repo = new WallpaperRepository(context);
+
+            var wallpaper = new Wallpaper
+            {
+                Title = "New Wallpaper",
+                ImageUrl = "http://example.com/image.jpg"
+            };
+
+            var added = await repo.AddAsync(wallpaper);
+
+            Assert.NotEqual(Guid.Empty, added.Id);
+            Assert.Equal("New Wallpaper", added.Title);
+            Assert.Equal("http://example.com/image.jpg", added.ImageUrl);
         }
     }
 }
