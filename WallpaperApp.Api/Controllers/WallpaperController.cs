@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc;
 using WallpaperApp.Application.Dtos;
 using WallpaperApp.Domain.Entities;
@@ -17,6 +16,7 @@ namespace WalpaperApp.Api.Controllers
             _repository = repository;
         }
 
+        // 🔹 Tüm duvar kağıtlarını getir
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WallpaperDto>>> GetWallpapers()
         {
@@ -32,20 +32,21 @@ namespace WalpaperApp.Api.Controllers
             return Ok(wallpaperDtos);
         }
 
+        // 🔹 Yeni duvar kağıdı ekle
         [HttpPost]
         public async Task<ActionResult<WallpaperDto>> CreateWallpaper([FromBody] CreateWallpaperDto createDto)
         {
             if (string.IsNullOrWhiteSpace(createDto.Title) || string.IsNullOrWhiteSpace(createDto.ImageUrl))
             {
-                return BadRequest("Title and ImageUrl are required"); // eksik alan varsa dönülür
+                return BadRequest("Title and ImageUrl are required");
             }
 
             var wallpaper = new Wallpaper
             {
                 Title = createDto.Title,
                 ImageUrl = createDto.ImageUrl
-
             };
+
             var created = await _repository.AddAsync(wallpaper);
 
             var result = new WallpaperDto
@@ -55,14 +56,12 @@ namespace WalpaperApp.Api.Controllers
                 ImageUrl = created.ImageUrl
             };
 
-            return CreatedAtAction(nameof(GetWallpapers), new { id = created.Id }, result); // eklenen veri başarıyla döner
-
-            // Dto ve Entity dönüşümü yapılır
-            //Kullanıcıya doğru HTTP durum kodlarını döndürür
-
+            return CreatedAtAction(nameof(GetWallpaper), new { id = created.Id }, result);
         }
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<WallpaperDto>> GetWallpaper(int id)
+
+        // 🔹 ID (Guid) ile duvar kağıdı getir
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<WallpaperDto>> GetWallpaper(Guid id)
         {
             try
             {
@@ -77,18 +76,13 @@ namespace WalpaperApp.Api.Controllers
                     Title = wallpaper.Title,
                     ImageUrl = wallpaper.ImageUrl
                 };
+
                 return Ok(dto);
             }
-                catch (Exception)
-                {
+            catch (Exception)
+            {
                 return StatusCode(500, "An unexpected error occurred.");
-                } 
-         }
-                
-
+            }
+        }
     }
-
-
-
- }
-
+}
