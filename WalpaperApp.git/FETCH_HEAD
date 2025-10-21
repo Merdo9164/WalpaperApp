@@ -1,0 +1,42 @@
+97f347beab69f9ee17e25674ce625ac1de8988dc	not-for-merge	branch 'WLLPPRPPDB-1-backend-projesi-olustur' of https://github.com/Merdo9164/WalpaperApp
+b0d9c6ccdb357ef28c391ff2d9608df6511275f4	not-for-merge	branch 'WLLPPRPPDB-15-endpoint-icin-testlerin-yazilmasi' of https://github.com/Merdo9164/WalpaperApp
+bd025ec8a8e71e164568217ab90bc6b1993542f7	not-for-merge	branch 'WLLPPRPPDB-16-veritabani-sorgusu-olusturulmasi' of https://github.com/Merdo9164/WalpaperApp
+0eb6baba2eef75c5fb8759f65c4b468b5e9221c8	not-for-merge	branch 'WLLPPRPPDB-19-endpoint-icin-hata-yonetimi-ekle' of https://github.com/Merdo9164/WalpaperApp
+109d94d294061b054c5500137e0a9902cabcabd5	not-for-merge	branch 'WLLPPRPPDB-20-get-endpointi-olustur-id-ile-wallpaper-getir' of https://github.com/Merdo9164/WalpaperApp
+162bfaff8adde8698afbdc4a76a599e19f390bff	not-for-merge	branch 'WLLPPRPPDB-22-endpoint-icin-birim-testi-yaz' of https://github.com/Merdo9164/WalpaperApp
+19541c09852a25f351198a008a12576e531c2f61	not-for-merge	branch 'WLLPPRPPDB-23-wallpaper-ekleme-icin-post-endpointinin-olusturulmasi' of https://github.com/Merdo9164/WalpaperApp
+7313092636b536a96807c84e2c37a7a90e377f32	not-for-merge	branch 'WLLPPRPPDB-24-wallpaper-ekleme-endpointi-icin-hata-yonetimi-ve-uygun-yanitlarin-saglanmasi' of https://github.com/Merdo9164/WalpaperApp
+fc68ea2b7a19629d4b0762a61540b00b05704529	not-for-merge	branch 'WLLPPRPPDB-25-wallpaper-ekleme-endpointi-icin-veri-modeli-olusturulmasi' of https://github.com/Merdo9164/WalpaperApp
+0db66409905121b7051616ad338897c3fd6c4d97	not-for-merge	branch 'WLLPPRPPDB-26-wallpaper-ekleme-isleminin-veritabanina-kaydedilmesi' of https://github.com/Merdo9164/WalpaperApp
+2120b3b48020910b0a659157e19654735a3d85a1	not-for-merge	branch 'WLLPPRPPDB-27-wallpaper-ekleme-endpointi-icin-dogrulama-kurallarinin-uygulanmasi' of https://github.com/Merdo9164/WalpaperApp
+d3b30218ef3b10347bfc7754a6ee297682330309	not-for-merge	branch 'WLLPPRPPDB-28-ef-core-paketlerini-projeye-eklecls' of https://github.com/Merdo9164/WalpaperApp
+867d7b864fb6d11c37941981bb68486c17df57a7	not-for-merge	branch 'WLLPPRPPDB-30-ef-core-migration-olustur' of https://github.com/Merdo9164/WalpaperApp
+77a9bf0e67be8fb435daffc3af962da5ec937cfd	not-for-merge	branch 'WLLPPRPPDB-32-post-endpointleri-icin-birim-testleri-yaz' of https://github.com/Merdo9164/WalpaperApp
+df6a784236c005b43d42aa3c67f10fe645f2685c	not-for-merge	branch 'WLLPPRPPDB-33-get-endpointleri-icin-birim-testleri-yaz' of https://github.com/Merdo9164/WalpaperApp
+c220a2f9b03b018fb99fe8ebadd66c4e8dd97ed4	not-for-merge	branch 'WLLPPRPPDB-34-get-ve-post-endpointleri-icin-hata-durumlarini-test-et' of https://github.com/Merdo9164/WalpaperApp
+a852083e0b2fc67d3f3f802073a69b704494fb92	not-for-merge	branch 'WLLPPRPPDB-42-entity-guncellemesi' of https://github.com/Merdo9164/WalpaperApp
+f3f4040a72b5f4dc784bf828ed24cd7bba923e3d	not-for-merge	branch 'WLLPPRPPDB-43-dto-ve-repository-guncellemesi' of https://github.com/Merdo9164/WalpaperApp
+867d7b864fb6d11c37941981bb68486c17df57a7	not-for-merge	branch 'WLLPPRPPDB-6-ef-core-db-baglantisi' of https://github.com/Merdo9164/WalpaperApp
+b00954c35e45f11db72e0d9592ee5b11de7592d4	not-for-merge	branch 'WLLPPRPPDB-69-veritabani-migration-islemlerinin-hazirlanmasi' of https://github.com/Merdo9164/WalpaperApp
+fa07028fddb0de359a23c878eef0a617ec1bc25c	not-for-merge	branch 'WLLPPRPPDB-70-testlerin-guncellenmesi-ve-yeni-testlerin-eklenmesi' of https://github.com/Merdo9164/WalpaperApp
+0c283ae8dce0b6a863329ea267df8aa8bb3c72f2	not-for-merge	branch 'develop' of https://github.com/Merdo9164/WalpaperApp
+b0d9c6ccdb357ef28c391ff2d9608df6511275f4	not-for-merge	'refs/pull/1/head' of https://github.com/Merdo9164/WalpaperApp
+0eb6baba2eef75c5fb8759f65c4b468b5e9221c8	not-for-merge	'refs/pull/10/head' of https://github.com/Merdo9164/WalpaperApp
+162bfaff8adde8698afbdc4a76a599e19f390bff	not-for-merge	'refs/pull/11/head' of https://github.com/Merdo9164/WalpaperApp
+df6a784236c005b43d42aa3c67f10fe645f2685c	not-for-merge	'refs/pull/12/head' of https://github.com/Merdo9164/WalpaperApp
+77a9bf0e67be8fb435daffc3af962da5ec937cfd	not-for-merge	'refs/pull/13/head' of https://github.com/Merdo9164/WalpaperApp
+84c0e5b2c7674c08aa6089e575d2c61809fd3435	not-for-merge	'refs/pull/14/head' of https://github.com/Merdo9164/WalpaperApp
+c220a2f9b03b018fb99fe8ebadd66c4e8dd97ed4	not-for-merge	'refs/pull/15/head' of https://github.com/Merdo9164/WalpaperApp
+a852083e0b2fc67d3f3f802073a69b704494fb92	not-for-merge	'refs/pull/16/head' of https://github.com/Merdo9164/WalpaperApp
+f3f4040a72b5f4dc784bf828ed24cd7bba923e3d	not-for-merge	'refs/pull/17/head' of https://github.com/Merdo9164/WalpaperApp
+b00954c35e45f11db72e0d9592ee5b11de7592d4	not-for-merge	'refs/pull/18/head' of https://github.com/Merdo9164/WalpaperApp
+fa07028fddb0de359a23c878eef0a617ec1bc25c	not-for-merge	'refs/pull/19/head' of https://github.com/Merdo9164/WalpaperApp
+fc68ea2b7a19629d4b0762a61540b00b05704529	not-for-merge	'refs/pull/2/head' of https://github.com/Merdo9164/WalpaperApp
+022b033680c33cdb1877cd385e9c3ae7d2a6cf43	not-for-merge	'refs/pull/20/head' of https://github.com/Merdo9164/WalpaperApp
+c41f236a437f7cd23ac5d33281eaf6d9ae43c424	not-for-merge	'refs/pull/3/head' of https://github.com/Merdo9164/WalpaperApp
+0db66409905121b7051616ad338897c3fd6c4d97	not-for-merge	'refs/pull/4/head' of https://github.com/Merdo9164/WalpaperApp
+2120b3b48020910b0a659157e19654735a3d85a1	not-for-merge	'refs/pull/5/head' of https://github.com/Merdo9164/WalpaperApp
+7313092636b536a96807c84e2c37a7a90e377f32	not-for-merge	'refs/pull/6/head' of https://github.com/Merdo9164/WalpaperApp
+ee53ab2c1fab561d6b61a7807c57d91a85a5ecf3	not-for-merge	'refs/pull/7/head' of https://github.com/Merdo9164/WalpaperApp
+19541c09852a25f351198a008a12576e531c2f61	not-for-merge	'refs/pull/8/head' of https://github.com/Merdo9164/WalpaperApp
+109d94d294061b054c5500137e0a9902cabcabd5	not-for-merge	'refs/pull/9/head' of https://github.com/Merdo9164/WalpaperApp
