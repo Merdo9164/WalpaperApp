@@ -33,7 +33,24 @@ else
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+// Swagger konfigürasyonu
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Wallpaper API",
+        Version = "v1",
+        Description = "A simple API for managing wallpapers",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "WallpaperApp",
+            Email = "support@wallpaperapp.local"
+        }
+    });
+});
+
 
 // 🔹 Veritabanı bağlantısı (InMemory kullanıyoruz)
 //builder.Services.AddDbContext<AppDbContext>(options =>
@@ -52,12 +69,16 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate(); // Tablolar yoksa oluştur
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Wallpaper API v1");
+        c.RoutePrefix = string.Empty; // Swagger doğrudan ana sayfada açılsın
+    });
 }
+
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
