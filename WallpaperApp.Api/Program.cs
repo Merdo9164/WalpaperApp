@@ -4,6 +4,7 @@ using WalpaperApp.Application.Interfaces;
 using WalpaperApp.Infrastructure.Repositories;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using WallpaperApp.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,9 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<IWallpaperRepository, WallpaperRepository>();
 
+//file Service
+builder.Services.AddScoped<IFileService, FileService>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -50,6 +54,9 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated(); // migrate yerine basit oluşturma
 }
+//statik dosyaları sun
+app.UseStaticFiles();
+
 
 if (app.Environment.IsDevelopment())
 {
