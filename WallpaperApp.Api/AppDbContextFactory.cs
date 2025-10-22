@@ -26,7 +26,7 @@ namespace WallpaperApp.Api
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseSqlServer(connectionString,b => b.MigrationsAssembly("WalpaperApp.Infrastructure"));
 
             return new AppDbContext(optionsBuilder.Options);
         }
