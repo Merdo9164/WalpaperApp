@@ -18,6 +18,9 @@ namespace WalpaperApp.Api.Controllers
         }
 
         // GET: api/wallpaper
+        /// <summary>
+        /// Sistemdeki tüm duvar kağıtlarını döner.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetWallpapers()
         {
