@@ -2,10 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using WalpaperApp.Infrastructure.Data;
 using WalpaperApp.Application.Interfaces;
 using WalpaperApp.Infrastructure.Repositories;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
 
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -18,55 +18,37 @@ if (builder.Environment.IsEnvironment("Testing"))
 else
 {
     builder.Services.AddDbContext<AppDbContext>(o =>
-    o.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions => sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,           // Maksimum deneme sayısı
-            maxRetryDelay: TimeSpan.FromSeconds(10), // Denemeler arası bekleme süresi
-            errorNumbersToAdd: null)    // Özel SQL hatalarını eklemek için
-    )
-);
+        o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    );
 }
 
-
-
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-
-// Swagger konfigürasyonu
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Wallpaper API",
         Version = "v1",
-        Description = "A simple API for managing wallpapers",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
-        {
-            Name = "WallpaperApp",
-            Email = "support@wallpaperapp.local"
-        }
+        Title = "Wallpaper API",
+        Description = "Duvar kağıdı yönetim API'si"
     });
+
+    // XML yorumlarını dahil et
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+        c.IncludeXmlComments(xmlPath);
 });
 
-
-// 🔹 Veritabanı bağlantısı (InMemory kullanıyoruz)
-//builder.Services.AddDbContext<AppDbContext>(options =>
-// options.UseInMemoryDatabase("WallpaperDb"));
-
-// 🔹 Repository kayıtları
 builder.Services.AddScoped<IWallpaperRepository, WallpaperRepository>();
-
-
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate(); // Tablolar yoksa oluştur
+    db.Database.EnsureCreated(); // migrate yerine basit oluşturma
 }
 
 if (app.Environment.IsDevelopment())
@@ -75,15 +57,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Wallpaper API v1");
-        c.RoutePrefix = string.Empty; // Swagger doğrudan ana sayfada açılsın
+        c.RoutePrefix = string.Empty;
     });
 }
-
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
 
-//Bu satır testler için zorunludur
 public partial class Program { }
