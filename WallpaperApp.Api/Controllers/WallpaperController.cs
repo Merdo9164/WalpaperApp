@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using WalpaperApp.Application.Interfaces;
 using WallpaperApp.Domain.Entities;
 using System;
 using System.Threading.Tasks;
+using WallpaperApp.Application.Dtos;
+using WallpaperApp.Api.Services;
 
 namespace WalpaperApp.Api.Controllers
 {
@@ -11,10 +14,12 @@ namespace WalpaperApp.Api.Controllers
     public class WallpaperController : ControllerBase
     {
         private readonly IWallpaperRepository _repository;
+        private readonly IFileService _fileService;
 
-        public WallpaperController(IWallpaperRepository repository)
+        public WallpaperController(IWallpaperRepository repository , IFileService fileService)
         {
             _repository = repository;
+            _fileService = fileService;
         }
 
         // GET: api/wallpaper
@@ -41,18 +46,35 @@ namespace WalpaperApp.Api.Controllers
 
         // POST: api/wallpaper
         [HttpPost]
-        public async Task<IActionResult> PostWallpaper([FromBody] Wallpaper wallpaper)
+        public async Task<IActionResult> PostWallpaper([FromForm] CreateWallpaperDto dto)
         {
-            if (wallpaper == null)
-                return BadRequest("Wallpaper cannot be null.");
+            if (dto == null)
+                return BadRequest("Payload is required.");
 
-            if (string.IsNullOrWhiteSpace(wallpaper.Title))
+            if (string.IsNullOrWhiteSpace(dto.Title))
                 return BadRequest("Title cannot be empty.");
 
-            if (string.IsNullOrWhiteSpace(wallpaper.ImageUrl))
-                return BadRequest("ImageUrl cannot be empty.");
+            if (dto.Image == null || dto.Image.Length == 0)
+                return BadRequest("Image file is required.");
 
-            wallpaper.Id = Guid.NewGuid();
+             // Dosyayı yükle
+            string imageUrl;
+            try
+            {
+                imageUrl = await _fileService.UploadAsync(dto.Image);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            var wallpaper = new Wallpaper
+            {
+                Id = Guid.NewGuid(),
+                Title = dto.Title,
+                ImageUrl = imageUrl
+            };    
+
             await _repository.AddAsync(wallpaper);
 
             return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
