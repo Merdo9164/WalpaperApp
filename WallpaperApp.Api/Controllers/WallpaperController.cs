@@ -46,6 +46,25 @@ namespace WalpaperApp.Api.Controllers
 
         // POST: api/wallpaper
         [HttpPost]
+        public async Task<IActionResult> PostWallpaper([FromBody] Wallpaper wallpaper)
+        {
+            if (wallpaper == null)
+                return BadRequest("Wallpaper cannot be null.");
+
+            if (string.IsNullOrWhiteSpace(wallpaper.Title))
+                return BadRequest("Title cannot be empty.");
+
+            if (string.IsNullOrWhiteSpace(wallpaper.ImageUrl))
+                return BadRequest("ImageUrl cannot be empty.");
+
+            wallpaper.Id = Guid.NewGuid();
+            await _repository.AddAsync(wallpaper);
+
+            return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
+        }
+
+        // POST: api/wallpaper/upload
+        [HttpPost("upload")]
         public async Task<IActionResult> PostWallpaper([FromForm] CreateWallpaperDto dto)
         {
             if (dto == null)
@@ -79,6 +98,8 @@ namespace WalpaperApp.Api.Controllers
 
             return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
         }
+
+    
 
         // DELETE: api/wallpaper/{id}
         [HttpDelete("{id:guid}")]

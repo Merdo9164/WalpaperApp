@@ -47,7 +47,7 @@ namespace WallpaperApp.Api.Services
                 await file.CopyToAsync(stream);
             }
 
-            // Erişim URL'i (relatif). Host eklemesi istemiyorsun, sadece path yeterli: /images/{fileName}
+            // Erişim URL'i (relatif)., sadece path yeterli: /images/{fileName}
             return $"/{_imagesFolder}/{fileName}";
         }
     }
