@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = WallpaperApp.Domain
-build_property.ProjectDir = c:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\
+build_property.ProjectDir = C:\Users\MONSTER\Documents\WalpaperApp\WallpaperApp.Domain\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
