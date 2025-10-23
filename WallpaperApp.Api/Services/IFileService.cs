@@ -15,5 +15,6 @@ namespace WallpaperApp.Api.Services
         /// Kaydedilen dosyanın URL’sini döner.
         /// </summary>
         Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl);
+        Task<string> DownloadImageFromUrlAndSaveAsync(string ımageUrl, string v);
     }
 }

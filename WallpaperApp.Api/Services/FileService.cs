@@ -89,5 +89,10 @@ namespace WallpaperApp.Api.Services
                 throw new Exception($"Resim indirilemedi: {ex.Message}");
             }
         }
+
+        public Task<string> DownloadImageFromUrlAndSaveAsync(string ımageUrl, string v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
