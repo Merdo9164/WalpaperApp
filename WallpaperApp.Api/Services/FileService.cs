@@ -23,9 +23,10 @@ namespace WallpaperApp.Api.Services
 
         public async Task<string> UploadAsync(IFormFile file)
         {
-            // Basit validasyon
-            if (file == null || file.Length == 0)
-                throw new ArgumentException("Dosya boş.");
+            const long maxFileSize = 5 * 1024 * 1024; // 5 MB
+
+            if (file.Length > maxFileSize)
+            throw new Exception("Dosya boyutu 5MB’dan büyük olamaz.");
 
             // Temel güvenlik: sadece belirli uzantılara izin ver (jpg/png/webp vb.)
             var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
