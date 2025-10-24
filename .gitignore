@@ -3,6 +3,12 @@ bin/
 obj/
 publish/
 PublishOutput/
+**/bin/
+**/obj/
+
+# Web Root (static files)
+# ========================
+**/wwwroot/
 
 # User-specific files
 *.user
