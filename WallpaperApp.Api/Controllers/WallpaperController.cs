@@ -23,9 +23,6 @@ namespace WalpaperApp.Api.Controllers
         }
 
         // GET: api/wallpaper
-        /// <summary>
-        /// Sistemdeki tüm duvar kağıtlarını döner.
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetWallpapers()
         {
@@ -65,7 +62,7 @@ namespace WalpaperApp.Api.Controllers
 
         // POST: api/wallpaper/upload
         [HttpPost("upload")]
-        public async Task<IActionResult> PostWallpaper([FromForm] CreateWallpaperDto dto)
+        public async Task<IActionResult> UploadWallpaper([FromForm] CreateWallpaperDto dto)
         {
             if (dto == null)
                 return BadRequest("Payload is required.");
@@ -76,7 +73,6 @@ namespace WalpaperApp.Api.Controllers
             if (dto.Image == null || dto.Image.Length == 0)
                 return BadRequest("Image file is required.");
 
-            // Dosyayı yükle
             string imageUrl;
             try
             {
@@ -95,49 +91,36 @@ namespace WalpaperApp.Api.Controllers
             };
 
             await _repository.AddAsync(wallpaper);
-
             return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
         }
 
         // POST: api/wallpaper/download-from-url
-        /// <summary>
-        /// URL üzerinden bir resmi indirip sunucuya kaydeder.
-        /// </summary>
         [HttpPost("download-from-url")]
-        public async Task<IActionResult> DownloadFromUrl([FromBody] ImageUrlRequest request)
+        public async Task<IActionResult> DownloadWallpaperFromUrl([FromBody] CreateWallpaperFromUrlDto dto)
         {
-            if (string.IsNullOrWhiteSpace(request.ImageUrl))
-                return BadRequest("Lütfen geçerli bir URL giriniz.");
+            if (dto == null || string.IsNullOrWhiteSpace(dto.ImageUrl))
+                return BadRequest("Image URL is required.");
 
+            string imageUrl;
             try
             {
-                // Serviste URL’den indirilen resmi kaydet
-                var savedPath = await _fileService.DownloadImageFromUrlAndSaveAsync(request.ImageUrl, "URL'den gelen resim");
-
-                // Veritabanına da kaydedelim
-                var wallpaper = new Wallpaper
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "URL'den Gelen Resim",
-                    ImageUrl = savedPath
-                };
-
-                await _repository.AddAsync(wallpaper);
-
-                return Ok(new
-                {
-                    message = "Resim başarıyla indirildi ve kaydedildi.",
-                    imageUrl = savedPath
-                });
+                imageUrl = await _fileService.DownloadImageFromUrlAndSaveAsync(dto.ImageUrl);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(ex.Message);
             }
+
+            var wallpaper = new Wallpaper
+            {
+                Id = Guid.NewGuid(),
+                Title = dto.Title ?? "No Title",
+                ImageUrl = imageUrl
+            };
+
+            await _repository.AddAsync(wallpaper);
+            return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
         }
-
-
-
 
         // DELETE: api/wallpaper/{id}
         [HttpDelete("{id:guid}")]
@@ -150,13 +133,5 @@ namespace WalpaperApp.Api.Controllers
             await _repository.DeleteAsync(id);
             return NoContent();
         }
-    }
-    
-    /// <summary>
-    /// URL’den görsel indirme isteği için DTO.
-    /// </summary>
-    public class ImageUrlRequest
-    {
-        public string ImageUrl { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
-namespace WallpaperApp.Api.Services
+namespace WalpaperApp.Api.Services
 {
     public interface IFileService
     {
