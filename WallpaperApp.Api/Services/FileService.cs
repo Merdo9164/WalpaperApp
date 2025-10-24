@@ -60,34 +60,49 @@ namespace WallpaperApp.Api.Services
             if (string.IsNullOrWhiteSpace(imageUrl))
                 throw new ArgumentException("URL boş olamaz.");
 
-            using var httpClient = new HttpClient();
-
-            var response = await httpClient.GetAsync(imageUrl);
-            if (!response.IsSuccessStatusCode)
-                throw new Exception("Resim indirilemedi. URL geçersiz olabilir.");
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "";
-            if (!contentType.StartsWith("image/"))
-                throw new Exception("Belirtilen URL bir resim içermiyor.");
-
-            var ext = contentType switch
+            try
             {
-                "image/jpeg" => ".jpg",
-                "image/png" => ".png",
-                "image/webp" => ".webp",
-                "image/gif" => ".gif",
-                _ => ".jpg"
-            };
+                using var httpClient = new HttpClient();
+                var response = await httpClient.GetAsync(imageUrl);
 
-            var fileName = $"{Guid.NewGuid()}{ext}";
-            var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), _imagesFolder);
-            Directory.CreateDirectory(imagesPath);
+                if (!response.IsSuccessStatusCode)
+                    throw new InvalidOperationException("Resim indirilemedi. URL geçersiz olabilir veya bağlantı reddedildi.");
 
-            var fullPath = Path.Combine(imagesPath, fileName);
-            var imageBytes = await response.Content.ReadAsByteArrayAsync();
-            await File.WriteAllBytesAsync(fullPath, imageBytes);
+                var contentType = response.Content.Headers.ContentType?.MediaType ?? "";
+                if (!contentType.StartsWith("image/"))
+                    throw new InvalidOperationException("Belirtilen URL bir resim içermiyor.");
 
-            return $"/{_imagesFolder}/{fileName}";
+                var ext = contentType switch
+                {
+                    "image/jpeg" => ".jpg",
+                    "image/png" => ".png",
+                    "image/webp" => ".webp",
+                    "image/gif" => ".gif",
+                    _ => ".jpg"
+                };
+
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), _imagesFolder);
+                Directory.CreateDirectory(imagesPath);
+
+                var fullPath = Path.Combine(imagesPath, fileName);
+                var imageBytes = await response.Content.ReadAsByteArrayAsync();
+                await File.WriteAllBytesAsync(fullPath, imageBytes);
+
+                return $"/{_imagesFolder}/{fileName}";
+            }
+            catch (HttpRequestException)
+            {
+                throw new InvalidOperationException("Resim indirilemedi. Lütfen internet bağlantınızı veya URL'yi kontrol edin.");
+            }
+            catch (TaskCanceledException)
+            {
+                throw new InvalidOperationException("İstek zaman aşımına uğradı. URL çok yavaş veya yanıt vermiyor.");
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Beklenmeyen bir hata oluştu: {ex.Message}");
+            }
         }
     }
 }
