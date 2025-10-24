@@ -98,11 +98,11 @@ namespace WalpaperApp.Api.Controllers
         [HttpPost("download-from-url")]
         public async Task<IActionResult> DownloadWallpaperFromUrl([FromBody] CreateWallpaperFromUrlDto dto)
         {
-            
+
             try
             {
                 if (dto == null || string.IsNullOrWhiteSpace(dto.ImageUrl))
-                return BadRequest("Image URL is required.");
+                    return BadRequest("Image URL is required.");
 
                 string imageUrl;
 
@@ -116,23 +116,35 @@ namespace WalpaperApp.Api.Controllers
                     ImageUrl = imageUrl
                 };
 
-                 await _repository.AddAsync(wallpaper);
-                 return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
+                await _repository.AddAsync(wallpaper);
+                return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
             }
-                catch (ArgumentException ex)
-                {
-                    return BadRequest(new { error = ex.Message });
-                }
-                catch (InvalidOperationException ex)
-                {
-                    return BadRequest(new { error = ex.Message });
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, new { error = $"Beklenmeyen hata: {ex.Message}" });
-                }
-           
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = $"Beklenmeyen hata: {ex.Message}" });
+            }
+
         }
+        
+        // GET: api/wallpaper/{id}/preview
+            [HttpGet("{id:guid}/preview")]
+            public async Task<IActionResult> GetWallpaperPreview(Guid id)
+            {
+                var wallpaper = await _repository.GetByIdAsync(id);
+                if (wallpaper == null)
+                    return NotFound();
+
+                // Direkt olarak görsel URL'sini dönebiliriz
+                return Ok(new { wallpaper.Title, wallpaper.ImageUrl });
+            }
 
         // DELETE: api/wallpaper/{id}
         [HttpDelete("{id:guid}")]
