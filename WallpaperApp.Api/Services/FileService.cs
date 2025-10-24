@@ -5,9 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using WallpaperApp.Domain.Entities;
 
 namespace WallpaperApp.Api.Services
 {
+    public interface IFileService
+    {
+        Task<string> UploadAsync(IFormFile file);
+        Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl);
+    }
+
     public class FileService : IFileService
     {
         private readonly IWebHostEnvironment _env;
@@ -55,44 +62,32 @@ namespace WallpaperApp.Api.Services
 
             using var httpClient = new HttpClient();
 
-            try
+            var response = await httpClient.GetAsync(imageUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Resim indirilemedi. URL geçersiz olabilir.");
+
+            var contentType = response.Content.Headers.ContentType?.MediaType ?? "";
+            if (!contentType.StartsWith("image/"))
+                throw new Exception("Belirtilen URL bir resim içermiyor.");
+
+            var ext = contentType switch
             {
-                var response = await httpClient.GetAsync(imageUrl);
-                if (!response.IsSuccessStatusCode)
-                    throw new Exception("Resim indirilemedi. URL geçersiz olabilir.");
+                "image/jpeg" => ".jpg",
+                "image/png" => ".png",
+                "image/webp" => ".webp",
+                "image/gif" => ".gif",
+                _ => ".jpg"
+            };
 
-                var contentType = response.Content.Headers.ContentType?.MediaType ?? "";
-                if (!contentType.StartsWith("image/"))
-                    throw new Exception("Belirtilen URL bir resim içermiyor.");
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), _imagesFolder);
+            Directory.CreateDirectory(imagesPath);
 
-                var ext = contentType switch
-                {
-                    "image/jpeg" => ".jpg",
-                    "image/png" => ".png",
-                    "image/webp" => ".webp",
-                    "image/gif" => ".gif",
-                    _ => ".jpg"
-                };
+            var fullPath = Path.Combine(imagesPath, fileName);
+            var imageBytes = await response.Content.ReadAsByteArrayAsync();
+            await File.WriteAllBytesAsync(fullPath, imageBytes);
 
-                var fileName = $"{Guid.NewGuid()}{ext}";
-                var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), _imagesFolder);
-                Directory.CreateDirectory(imagesPath);
-
-                var fullPath = Path.Combine(imagesPath, fileName);
-                var imageBytes = await response.Content.ReadAsByteArrayAsync();
-                await File.WriteAllBytesAsync(fullPath, imageBytes);
-
-                return $"/{_imagesFolder}/{fileName}";
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Resim indirilemedi: {ex.Message}");
-            }
-        }
-
-        public Task<string> DownloadImageFromUrlAndSaveAsync(string ımageUrl, string v)
-        {
-            throw new NotImplementedException();
+            return $"/{_imagesFolder}/{fileName}";
         }
     }
 }
