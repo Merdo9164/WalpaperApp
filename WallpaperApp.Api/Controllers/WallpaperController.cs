@@ -98,28 +98,40 @@ namespace WalpaperApp.Api.Controllers
         [HttpPost("download-from-url")]
         public async Task<IActionResult> DownloadWallpaperFromUrl([FromBody] CreateWallpaperFromUrlDto dto)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.ImageUrl))
-                return BadRequest("Image URL is required.");
-
-            string imageUrl;
+            
             try
             {
+                if (dto == null || string.IsNullOrWhiteSpace(dto.ImageUrl))
+                return BadRequest("Image URL is required.");
+
+                string imageUrl;
+
+
                 imageUrl = await _fileService.DownloadImageFromUrlAndSaveAsync(dto.ImageUrl);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
 
-            var wallpaper = new Wallpaper
-            {
-                Id = Guid.NewGuid(),
-                Title = dto.Title ?? "No Title",
-                ImageUrl = imageUrl
-            };
+                var wallpaper = new Wallpaper
+                {
+                    Id = Guid.NewGuid(),
+                    Title = dto.Title ?? "No Title",
+                    ImageUrl = imageUrl
+                };
 
-            await _repository.AddAsync(wallpaper);
-            return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
+                 await _repository.AddAsync(wallpaper);
+                 return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
+            }
+                catch (ArgumentException ex)
+                {
+                    return BadRequest(new { error = ex.Message });
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return BadRequest(new { error = ex.Message });
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { error = $"Beklenmeyen hata: {ex.Message}" });
+                }
+           
         }
 
         // DELETE: api/wallpaper/{id}
