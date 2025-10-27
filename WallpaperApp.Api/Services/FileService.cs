@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WallpaperApp.Domain.Entities;
 
@@ -25,9 +28,34 @@ namespace WallpaperApp.Api.Services
             _env = env;
         }
 
+        // Slugify : "Hello World" -> "hello-world"
+        private string Slugify(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                input = Guid.NewGuid().ToString();
+
+            var normalized = input.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach (var ch in normalized)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+                if (uc != System.Globalization.UnicodeCategory.NonSpacingMark)
+                    sb.Append(ch);
+            }
+            var cleaned = sb.ToString().Normalize(NormalizationForm.FormC);
+            cleaned = cleaned.ToLowerInvariant();
+            cleaned = Regex.Replace(cleaned, @"[^a-z0-9\s-_]", "");// remove invalid chars
+            cleaned = Regex.Replace(cleaned, @"[\s_]+", "-").Trim('-');
+            if (string.IsNullOrWhiteSpace(cleaned))
+                cleaned = Guid.NewGuid().ToString();
+
+            return cleaned;
+        }
+
         /// <summary>
         /// Formdan yüklenen dosyayı wwwroot/images altına kaydeder.
         /// </summary>
+        //Returns /images/{fileName}
         public async Task<string> UploadAsync(IFormFile file , string title)
         {
             const long maxFileSize = 5 * 1024 * 1024; // 5 MB
@@ -40,18 +68,30 @@ namespace WallpaperApp.Api.Services
                 throw new ArgumentException("Desteklenmeyen dosya türü.");
 
 
+            var slug = Slugify(title);
+            var fileName = slug + ext;
 
-            var fileName = $"{Guid.NewGuid()}{ext}";
+
             var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), _imagesFolder);
             Directory.CreateDirectory(imagesPath);
 
             var fullPath = Path.Combine(imagesPath, fileName);
+            int counter = 1;
+            while (File.Exists(fullPath))
+            {
+                // Eğer aynı title ile başka biri yüklemişse "-1", "-2" ekle
+                var candidate = $"{slug}-{counter}{ext}";
+                fullPath = Path.Combine(imagesPath, candidate);
+                counter++;
+            }
+
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            return $"/{_imagesFolder}/{fileName}";
+            var savedFileName = Path.GetFileName(fullPath);
+            return $"/{_imagesFolder}/{savedFileName}";
         }
 
         /// <summary>
@@ -83,15 +123,21 @@ namespace WallpaperApp.Api.Services
                     _ => ".jpg"
                 };
 
-                var fileName = $"{Guid.NewGuid()}{ext}";
+                var slug = Slugify(title ?? Path.GetFileNameWithoutExtension(imageUrl) ?? Guid.NewGuid().ToString());
                 var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), _imagesFolder);
                 Directory.CreateDirectory(imagesPath);
 
-                var fullPath = Path.Combine(imagesPath, fileName);
+                var fullPath = Path.Combine(imagesPath, slug + ext);
+                int counter = 1;
+                while (File.Exists(fullPath))
+                {
+                    fullPath = Path.Combine(imagesPath, $"{slug}-{counter}{ext}");
+                    counter++;
+                }
                 var imageBytes = await response.Content.ReadAsByteArrayAsync();
                 await File.WriteAllBytesAsync(fullPath, imageBytes);
 
-                return $"/{_imagesFolder}/{fileName}";
+                return $"/{_imagesFolder}/{Path.GetFileName(fullPath)}";
             }
             catch (HttpRequestException)
             {
