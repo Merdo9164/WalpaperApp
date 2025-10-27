@@ -27,7 +27,15 @@ namespace WalpaperApp.Api.Controllers
         public async Task<IActionResult> GetWallpapers()
         {
             var wallpapers = await _repository.GetAllAsync();
-            return Ok(wallpapers);
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            var list = wallpapers.Select(w => new {
+                w.Id,
+                w.Title,
+                ImageUrl = $"{baseUrl}{w.ImageUrl}"
+            });
+
+            return Ok(list);
         }
 
         // GET: api/wallpaper/{id}
@@ -38,7 +46,15 @@ namespace WalpaperApp.Api.Controllers
             if (wallpaper == null)
                 return NotFound();
 
-            return Ok(wallpaper);
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var result = new
+            {
+                wallpaper.Id,
+                wallpaper.Title,
+                ImageUrl = $"{baseUrl}{wallpaper.ImageUrl}"
+            };    
+
+            return Ok(result);
         }
 
         // POST: api/wallpaper
@@ -95,7 +111,20 @@ namespace WalpaperApp.Api.Controllers
             };
 
             await _repository.AddAsync(wallpaper);
-            return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, wallpaper);
+
+            //Tam erişim Urlsi oluştur
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var fullImageUrl = $"{baseUrl}{imageUrl}";
+
+            // API çıktısında tam URL dönelim
+            var result = new
+            {
+                wallpaper.Id,
+                wallpaper.Title,
+                ImageUrl = fullImageUrl
+            };
+
+            return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, result);
         }
 
         // POST: api/wallpaper/download-from-url
