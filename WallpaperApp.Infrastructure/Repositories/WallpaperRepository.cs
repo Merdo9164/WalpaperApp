@@ -34,9 +34,20 @@ namespace WalpaperApp.Infrastructure.Repositories
             return await _context.Wallpapers.FirstOrDefaultAsync(w => w.Id == id);
         }
 
-        public Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var wallpaper = await _context.Wallpapers.FirstOrDefaultAsync(w => w.Id == id);
+            if (wallpaper == null)
+                return false;
+
+            _context.Wallpapers.Remove(wallpaper);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        Task IWallpaperRepository.DeleteAsync(Guid id)
+        {
+            return DeleteAsync(id);
         }
     }
 }
