@@ -76,11 +76,15 @@ namespace WalpaperApp.Api.Controllers
             string imageUrl;
             try
             {
-                imageUrl = await _fileService.UploadAsync(dto.Image);
+                imageUrl = await _fileService.UploadAsync(dto.Image, dto.Title);
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "Yükleme sırasında hata" + ex.Message);
             }
 
             var wallpaper = new Wallpaper

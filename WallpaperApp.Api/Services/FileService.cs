@@ -11,8 +11,8 @@ namespace WallpaperApp.Api.Services
 {
     public interface IFileService
     {
-        Task<string> UploadAsync(IFormFile file);
-        Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl);
+        Task<string> UploadAsync(IFormFile file ,string title);
+        Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl , string? title = null);
     }
 
     public class FileService : IFileService
@@ -28,7 +28,7 @@ namespace WallpaperApp.Api.Services
         /// <summary>
         /// Formdan yüklenen dosyayı wwwroot/images altına kaydeder.
         /// </summary>
-        public async Task<string> UploadAsync(IFormFile file)
+        public async Task<string> UploadAsync(IFormFile file , string title)
         {
             const long maxFileSize = 5 * 1024 * 1024; // 5 MB
             if (file.Length > maxFileSize)
@@ -38,6 +38,8 @@ namespace WallpaperApp.Api.Services
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowed.Contains(ext))
                 throw new ArgumentException("Desteklenmeyen dosya türü.");
+
+
 
             var fileName = $"{Guid.NewGuid()}{ext}";
             var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), _imagesFolder);
@@ -55,7 +57,7 @@ namespace WallpaperApp.Api.Services
         /// <summary>
         /// Verilen URL’den resmi indirir, doğrular ve wwwroot/images altına kaydeder.
         /// </summary>
-        public async Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl)
+        public async Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl , string? title=null)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
                 throw new ArgumentException("URL boş olamaz.");
