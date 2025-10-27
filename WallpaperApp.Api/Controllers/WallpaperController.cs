@@ -185,10 +185,19 @@ namespace WalpaperApp.Api.Controllers
         {
             var wallpaper = await _repository.GetByIdAsync(id);
             if (wallpaper == null)
-                return NotFound();
+                return NotFound(" Silinecek Kayıt Bulunamadı.");
 
+
+            // Önce dosyayı fiziksel olarak sil
+            await _fileService.DeleteFileAsync(wallpaper.ImageUrl);    
+
+            // Ardından veritabanı kaydını sil
             await _repository.DeleteAsync(id);
-            return NoContent();
+            return Ok(new
+            {
+                message = "Görsel Başarıyla Silindi.",
+                deletedId = id
+            });
         }
     }
 }
