@@ -16,6 +16,7 @@ namespace WallpaperApp.Api.Services
     {
         Task<string> UploadAsync(IFormFile file ,string title);
         Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl , string? title = null);
+        Task DeleteFileAsync(string ımageUrl);
     }
 
     public class FileService : IFileService
