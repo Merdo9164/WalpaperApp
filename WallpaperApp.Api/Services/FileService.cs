@@ -97,7 +97,7 @@ namespace WallpaperApp.Api.Services
         /// <summary>
         /// Verilen URL’den resmi indirir, doğrular ve wwwroot/images altına kaydeder.
         /// </summary>
-        public async Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl , string? title=null)
+        public async Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl, string? title = null)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
                 throw new ArgumentException("URL boş olamaz.");
@@ -152,5 +152,36 @@ namespace WallpaperApp.Api.Services
                 throw new InvalidOperationException($"Beklenmeyen bir hata oluştu: {ex.Message}");
             }
         }
+
+        public async Task DeleteFileAsync(string imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                return;
+
+            try
+            {
+                // URL örneği : "/images/deneme.jpg" veya "https://localhost:7010/images/deneme.jpg"
+                //önce relatif path e dönüştürelim
+                var fileName = Path.GetFileName(imageUrl);
+                var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "images");
+                var fullPath = Path.Combine(imagesPath, fileName);
+
+                if (File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);
+                    await Task.CompletedTask;
+                }
+            }    
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Dosya Silinirken hata oluştu: {ex.Message}");
+            }
+        }
+
+        
+
+
+
+
     }
 }
