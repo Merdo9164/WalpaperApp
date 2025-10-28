@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using WalpaperApp.Infrastructure.Data;
-using WalpaperApp.Application.Interfaces;
-using WalpaperApp.Infrastructure.Repositories;
+using WallpaperApp.Infrastructure.Data;
+using WallpaperApp.Application.Interfaces;
+using WallpaperApp.Infrastructure.Repositories;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using WallpaperApp.Api.Services;

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
-using WalpaperApp.Infrastructure.Data;
-using WalpaperApp.Application.Interfaces;
-using WalpaperApp.Infrastructure.Repositories;
+using WallpaperApp.Infrastructure.Data;
+using WallpaperApp.Application.Interfaces;
+using WallpaperApp.Infrastructure.Repositories;
 
 namespace WallpaperApp.Tests
 {

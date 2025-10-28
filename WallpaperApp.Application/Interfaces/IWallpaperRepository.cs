@@ -1,6 +1,6 @@
 using WallpaperApp.Domain.Entities;
 
-namespace WalpaperApp.Application.Interfaces
+namespace WallpaperApp.Application.Interfaces
 {
     public interface IWallpaperRepository
     {

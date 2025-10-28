@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using WalpaperApp.Application.Interfaces;
+using WallpaperApp.Application.Interfaces;
 using WallpaperApp.Domain.Entities;
 using System;
 using System.Threading.Tasks;
 using WallpaperApp.Application.Dtos;
 using WallpaperApp.Api.Services;
 
-namespace WalpaperApp.Api.Controllers
+namespace WallpaperApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using WallpaperApp.Domain.Entities;
-using WalpaperApp.Application.Interfaces;
-using WalpaperApp.Infrastructure.Data;
+using WallpaperApp.Application.Interfaces;
+using WallpaperApp.Infrastructure.Data;
 
-namespace WalpaperApp.Infrastructure.Repositories
+namespace WallpaperApp.Infrastructure.Repositories
 {
     public class WallpaperRepository : IWallpaperRepository
     {

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using WalpaperApp.Infrastructure.Data;
-using WalpaperApp.Infrastructure.Repositories;
+using WallpaperApp.Infrastructure.Data;
+using WallpaperApp.Infrastructure.Repositories;
 using WallpaperApp.Domain.Entities;
 using Xunit;
 using System;

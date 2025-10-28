@@ -13,12 +13,7 @@ using WallpaperApp.Domain.Entities;
 
 namespace WallpaperApp.Api.Services
 {
-    public interface IFileService
-    {
-        Task<string> UploadAsync(IFormFile file ,string title);
-        Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl , string? title = null);
-        Task DeleteFileAsync(string ımageUrl);
-    }
+    
 
     public class FileService : IFileService
     {
@@ -201,10 +196,14 @@ namespace WallpaperApp.Api.Services
             await image.SaveAsync(destinationPath, new JpegEncoder { Quality = 85 });
         }
 
-        
+        public Task<string> UploadAsync(IFormFile file)
+        {
+            throw new NotImplementedException();
+        }
 
-
-
-
+        public Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
