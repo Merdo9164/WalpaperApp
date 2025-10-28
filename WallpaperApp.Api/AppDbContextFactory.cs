@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System.IO;
-using WalpaperApp.Infrastructure.Data;
+using WallpaperApp.Infrastructure.Data;
 
 namespace WallpaperApp.Api
 {
@@ -26,7 +26,7 @@ namespace WallpaperApp.Api
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            optionsBuilder.UseSqlServer(connectionString,b => b.MigrationsAssembly("WalpaperApp.Infrastructure"));
+            optionsBuilder.UseSqlServer(connectionString,b => b.MigrationsAssembly("WallpaperApp.Infrastructure"));
 
             return new AppDbContext(optionsBuilder.Options);
         }

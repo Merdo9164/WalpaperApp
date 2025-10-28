@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WallpaperApp.Domain.Entities;
 
-namespace WalpaperApp.Infrastructure.Data
+namespace WallpaperApp.Infrastructure.Data
 {
     public class AppDbContext : DbContext
     {

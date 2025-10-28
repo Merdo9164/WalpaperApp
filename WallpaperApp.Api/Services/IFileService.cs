@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
-namespace WalpaperApp.Api.Services
+namespace WallpaperApp.Api.Services
 {
     public interface IFileService
     {
         /// <summary>
         /// Formdan yüklenen bir resmi sunucuya kaydeder ve URL’sini döner.
         /// </summary>
-        Task<string> UploadAsync(IFormFile file);
+        Task<string> UploadAsync(IFormFile file ,string title);
 
         /// <summary>
         /// URL’den resmi indirir, doğrular ve sunucuya kaydeder. 
