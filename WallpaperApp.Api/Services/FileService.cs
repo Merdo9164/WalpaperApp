@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp.Formats.Jpeg;
 using System;
 using System.Globalization;
 using System.IO;
@@ -76,6 +77,7 @@ namespace WallpaperApp.Api.Services
             var imagesPath = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), _imagesFolder);
             Directory.CreateDirectory(imagesPath);
 
+
             var fullPath = Path.Combine(imagesPath, fileName);
             int counter = 1;
             while (File.Exists(fullPath))
@@ -90,6 +92,9 @@ namespace WallpaperApp.Api.Services
             {
                 await file.CopyToAsync(stream);
             }
+
+
+        
 
             var savedFileName = Path.GetFileName(fullPath);
             return $"/{_imagesFolder}/{savedFileName}";
@@ -172,11 +177,22 @@ namespace WallpaperApp.Api.Services
                     File.Delete(fullPath);
                     await Task.CompletedTask;
                 }
-            }    
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine($"Dosya Silinirken hata oluştu: {ex.Message}");
             }
+        }
+        private async Task CreateThumbnailAsync(string sourcePath,string destinationPath,int width = 200, int height = 200)
+        {
+            using var image = await Image.LoadAsync(sourcePath);
+            image.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Size = new Size(width, height),
+                Mode = ResizeMode.Crop
+
+            }));
+            await image.SaveAsync(destinationPath, new JpegEncoder { Quality = 85 });
         }
 
         
