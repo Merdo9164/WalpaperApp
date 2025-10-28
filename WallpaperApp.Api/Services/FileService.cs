@@ -94,7 +94,11 @@ namespace WallpaperApp.Api.Services
             }
 
 
-        
+            // thumbnaillerin kayıt yeri oluşumu
+            var thumbnailPath = Path.Combine(_env.WebRootPath?? "thumbnails", fileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(thumbnailPath)!);
+            await CreateThumbnailAsync(fullPath, thumbnailPath);
+
 
             var savedFileName = Path.GetFileName(fullPath);
             return $"/{_imagesFolder}/{savedFileName}";
@@ -140,6 +144,8 @@ namespace WallpaperApp.Api.Services
                     fullPath = Path.Combine(imagesPath, $"{slug}-{counter}{ext}");
                     counter++;
                 }
+
+                
                 var imageBytes = await response.Content.ReadAsByteArrayAsync();
                 await File.WriteAllBytesAsync(fullPath, imageBytes);
 
