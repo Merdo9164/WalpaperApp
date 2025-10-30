@@ -150,7 +150,7 @@ namespace WallpaperApp.Api.Services
         }
 
         //  Dosya siler
-        public async Task DeleteFileAsync(string imageUrl)
+        public async Task DeleteFileAsync(string? imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
                 return;
@@ -180,8 +180,11 @@ namespace WallpaperApp.Api.Services
             image.Mutate(x => x.Resize(new ResizeOptions
             {
                 Size = new Size(width, height),
-                Mode = ResizeMode.Crop //  Görseli orantılı kırparak 200x200 yapar
+                Mode = ResizeMode.Max, // oranı koruyarak küçültür.
+                Sampler = KnownResamplers.Lanczos3,
+                Compand = true
             }));
+
             await image.SaveAsync(destinationPath, new JpegEncoder { Quality = 85 });
         }
 
