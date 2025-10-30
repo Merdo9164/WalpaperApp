@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 using WallpaperApp.Domain.Entities;
 using Xunit;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Moq;
+using WallpaperApp.Api.Services;
+using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace WallpaperApp.Tests.Controllers
 {
@@ -72,6 +76,24 @@ namespace WallpaperApp.Tests.Controllers
             Assert.Equal("Another Image", fetched.Title);
         }
 
+        //Delete Endpoint testi
+        [Fact]
+        public async Task DeleteWallpaper_ExistingWallpaper_ReturnsNoContent()
+        {
+            var newWallpaper = new Wallpaper
+            {
+                Title = "Delete Test",
+                ImageUrl = "http://example.com/delete.jpg"
+            };
+
+            var postResponse = await _client.PatchAsJsonAsync("/api/wallpaper", newWallpaper);
+            var created = await postResponse.Content.ReadFromJsonAsync<Wallpaper?>();
+            Assert.NotNull(created);
+
+            var deleteResponse = await _client.DeleteAsync($"/api/wallpaper/{created!.Id}");
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        }
+
         // Boş title ile POST
         [Fact]
         public async Task PostWallpaper_WithEmptyTitle_ReturnsBadRequest()
@@ -83,7 +105,7 @@ namespace WallpaperApp.Tests.Controllers
             };
 
             var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
-            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         // Boş ImageUrl ile POST
@@ -97,7 +119,7 @@ namespace WallpaperApp.Tests.Controllers
             };
 
             var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
-            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         // Null object ile POST
@@ -107,7 +129,7 @@ namespace WallpaperApp.Tests.Controllers
             Wallpaper? invalidWallpaper = null;
 
             var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
-            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         // Yanlış endpoint ile GET
@@ -115,7 +137,7 @@ namespace WallpaperApp.Tests.Controllers
         public async Task GetWallpapers_WrongUrl_ReturnsNotFound()
         {
             var response = await _client.GetAsync("/api/wallpapers-wrong");
-            Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         // GET list test (boş veya dolu)
@@ -129,5 +151,21 @@ namespace WallpaperApp.Tests.Controllers
             Assert.NotNull(wallpapers);
             Assert.True(wallpapers!.Count >= 0);
         }
+
+        //FileService mock Testi
+        [Fact]
+        public async Task FileService_UploadAsync_ReturnsFilePathSuccessfully()
+        {
+            var mockFileService = new Mock<IFileService>();
+            var mockFile = new Mock<IFormFile>();
+
+            mockFileService
+                .Setup(fs => fs.UploadAsync(It.IsAny<IFormFile>(), It.IsAny<string>()))
+                .ReturnsAsync("/uploads/test.jpg");
+
+            var result = await mockFileService.Object.UploadAsync(mockFile.Object, "test");
+            Assert.Equal("/uploads/test.jpg", result);
+        }
+
     }
 }

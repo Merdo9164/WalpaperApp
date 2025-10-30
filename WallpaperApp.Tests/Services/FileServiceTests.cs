@@ -62,7 +62,7 @@ namespace WallpaperApp.Tests.Services
             var exception = await Record.ExceptionAsync(() => _fileService.DeleteFileAsync(fakePath));
             Assert.Null(exception);
 
-            //DeleteFileAsync var olmayan bir dosyada hata firlatıyor mu .
+            //DeleteFileAsync var olmayan bir dosyada hata firlatıyor mu
         }
     }
 }
