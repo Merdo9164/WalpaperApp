@@ -15,7 +15,7 @@ namespace WallpaperApp.Api.Services
         /// Kaydedilen dosyanın URL’sini döner.
         /// </summary>
         Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl);
-        Task DeleteFileAsync(string imageUrl);
+        Task DeleteFileAsync(string? imageUrl);
         Task<(string imageUrl, string thumbnailUrl)> UploadWithThumbnailAsync(IFormFile file, string title);
         Task<(string imageUrl, string thumbnailUrl)> DownloadImageAndCreateThumbnailAsync(string imageUrl, string title);
 
