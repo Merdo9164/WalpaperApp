@@ -13,6 +13,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace WallpaperApp.Tests.Controllers
 {
+
+    public interface IThumbnailService
+    {
+        Task<string> GenerateThumbnailAsync(string imagePath);
+    }
     public class WallpaperControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
@@ -165,6 +170,20 @@ namespace WallpaperApp.Tests.Controllers
 
             var result = await mockFileService.Object.UploadAsync(mockFile.Object, "test");
             Assert.Equal("/uploads/test.jpg", result);
+        }
+
+
+        //ThumbnailService Mock Testi
+        [Fact]
+        public async Task ThumbnailService_GenerateThumbnailAsync_ReturnsThumbnailPath()
+        {
+            var mockThumbnailService = new Mock<IThumbnailService>();
+            mockThumbnailService
+                .Setup(ts => ts.GenerateThumbnailAsync(It.IsAny<string>()))
+                .ReturnsAsync("/thumbnails/test_thumb.jpg");
+
+            var result = await mockThumbnailService.Object.GenerateThumbnailAsync("image/test.jpg");
+            Assert.Equal("/thumbnails/test_thumb.jpg", result); 
         }
 
     }
