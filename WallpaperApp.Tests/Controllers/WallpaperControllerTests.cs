@@ -1,190 +1,144 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
+using WallpaperApp.Api.Controllers;
+using WallpaperApp.Application.Dtos;
+using WallpaperApp.Application.Interfaces;
 using WallpaperApp.Domain.Entities;
 using Xunit;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Moq;
+using FluentAssertions;
 using WallpaperApp.Api.Services;
-using System.Net;
-using Microsoft.AspNetCore.Http;
 
-namespace WallpaperApp.Tests.Controllers
+namespace WallpaperApp.Tests
 {
-
-    public interface IThumbnailService
+    public class WallpaperControllerTests
     {
-        Task<string> GenerateThumbnailAsync(string imagePath);
-    }
-    public class WallpaperControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
-    {
-        private readonly HttpClient _client;
+        private readonly Mock<IWallpaperRepository> _mockRepo;
+        private readonly Mock<IFileService> _mockFileService;
+        private readonly WallpaperController _controller;
 
-        public WallpaperControllerTests(CustomWebApplicationFactory<Program> factory)
+        public WallpaperControllerTests()
         {
-            _client = factory.CreateClient();
-        }
+            _mockRepo = new Mock<IWallpaperRepository>();
+            _mockFileService = new Mock<IFileService>();
+            _controller = new WallpaperController(_mockRepo.Object, _mockFileService.Object);
 
-        // GET endpoint testi
-        [Fact]
-        public async Task GetWallpapers_ReturnsOk()
-        {
-            var response = await _client.GetAsync("/api/wallpaper");
-            response.EnsureSuccessStatusCode();
-
-            var wallpapers = await response.Content.ReadFromJsonAsync<List<Wallpaper>?>();
-            Assert.NotNull(wallpapers);
-        }
-
-        // POST endpoint testi (entity kullanımı ve GUID uyumu)
-        [Fact]
-        public async Task PostWallpaper_WithValidData_ReturnsCreated()
-        {
-            var newWallpaper = new Wallpaper
+            // Sahte HTTP RequestContext ekle
+            _controller.ControllerContext = new ControllerContext
             {
-                Title = "Test Wallpaper",
-                ImageUrl = "http://example.com/test.jpg"
+                HttpContext = new DefaultHttpContext()
+            };
+            _controller.ControllerContext.HttpContext.Request.Scheme = "http";
+            _controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost");
+        }
+
+        [Fact]
+        public async Task GetWallpapers_Should_Return_All_Items()
+        {
+            // Arrange
+            var wallpapers = new List<Wallpaper>
+            {
+                new Wallpaper { Id = Guid.NewGuid(), Title = "Test", ImageUrl = "/images/img1.jpg", ThumbnailUrl = "/thumbnails/thumb1.jpg" }
+            };
+            _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(wallpapers);
+
+            // Act
+            var result = await _controller.GetWallpapers() as OkObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.Value.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task GetWallpaper_Should_Return_NotFound_When_NotExists()
+        {
+            // Arrange
+            _mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Wallpaper?)null);
+
+            // Act
+            var result = await _controller.GetWallpaper(Guid.NewGuid());
+
+            // Assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Fact]
+        public async Task UploadWallpaper_Should_Return_Created_When_Successful()
+        {
+            // Arrange
+            var dto = new CreateWallpaperDto
+            {
+                Title = "Nice Wallpaper",
+                Image = new FormFile(new System.IO.MemoryStream(new byte[10]), 0, 10, "file", "test.jpg")
             };
 
-            var response = await _client.PostAsJsonAsync("/api/wallpaper", newWallpaper);
-            response.EnsureSuccessStatusCode();
+            _mockFileService.Setup(f => f.UploadWithThumbnailAsync(It.IsAny<IFormFile>(), It.IsAny<string>()))
+                .ReturnsAsync(("/images/test.jpg", "/thumbnails/test.jpg"));
 
-            var created = await response.Content.ReadFromJsonAsync<Wallpaper?>();
-            Assert.NotNull(created);
-            Assert.Equal("Test Wallpaper", created!.Title);
-            Assert.Equal("http://example.com/test.jpg", created.ImageUrl);
-            Assert.NotEqual(Guid.Empty, created.Id); // GUID kontrolü
+            // Act
+            var result = await _controller.UploadWallpaper(dto) as CreatedAtActionResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.Value.Should().NotBeNull();
+            _mockRepo.Verify(r => r.AddAsync(It.IsAny<Wallpaper>()), Times.Once);
         }
 
-        // GET by GUID testi
         [Fact]
-        public async Task GetWallpaper_ByGuid_ReturnsWallpaper()
+        public async Task DownloadWallpaperFromUrl_Should_Return_Created()
         {
-            var newWallpaper = new Wallpaper
+            // Arrange
+            var dto = new CreateWallpaperFromUrlDto
             {
-                Title = "Another Image",
-                ImageUrl = "http://example.com/another.jpg"
+                ImageUrl = "https://example.com/image.jpg",
+                Title = "Downloaded"
             };
 
-            var postResponse = await _client.PostAsJsonAsync("/api/wallpaper", newWallpaper);
-            var created = await postResponse.Content.ReadFromJsonAsync<Wallpaper?>();
-            Assert.NotNull(created);
+            _mockFileService.Setup(f => f.DownloadImageAndCreateThumbnailAsync(dto.ImageUrl, dto.Title))
+                .ReturnsAsync(("/images/img.jpg", "/thumbnails/thumb.jpg"));
 
-            var getResponse = await _client.GetAsync($"/api/wallpaper/{created!.Id}");
-            getResponse.EnsureSuccessStatusCode();
+            // Act
+            var result = await _controller.DownloadWallpaperFromUrl(dto);
 
-            var fetched = await getResponse.Content.ReadFromJsonAsync<Wallpaper?>();
-            Assert.NotNull(fetched);
-            Assert.Equal(created.Id, fetched!.Id);
-            Assert.Equal("Another Image", fetched.Title);
+            // Assert
+            result.Should().BeOfType<CreatedAtActionResult>();
         }
 
-        //Delete Endpoint testi
         [Fact]
-        public async Task DeleteWallpaper_ExistingWallpaper_ReturnsNoContent()
+        public async Task DeleteWallpaper_Should_Return_NotFound_When_Missing()
         {
-            var newWallpaper = new Wallpaper
+            _mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Wallpaper?)null);
+
+            var result = await _controller.DeleteWallpaper(Guid.NewGuid());
+
+            result.Should().BeOfType<NotFoundObjectResult>();
+        }
+
+        [Fact]
+        public async Task DeleteWallpaper_Should_Delete_When_Found()
+        {
+            var wallpaper = new Wallpaper
             {
-                Title = "Delete Test",
-                ImageUrl = "http://example.com/delete.jpg"
+                Id = Guid.NewGuid(),
+                Title = "Test",
+                ImageUrl = "/images/img.jpg",
+                ThumbnailUrl = "/thumbnails/thumb.jpg"
             };
 
-            var postResponse = await _client.PatchAsJsonAsync("/api/wallpaper", newWallpaper);
-            var created = await postResponse.Content.ReadFromJsonAsync<Wallpaper?>();
-            Assert.NotNull(created);
+            _mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(wallpaper);
 
-            var deleteResponse = await _client.DeleteAsync($"/api/wallpaper/{created!.Id}");
-            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            var result = await _controller.DeleteWallpaper(wallpaper.Id);
+
+            result.Should().BeOfType<OkObjectResult>();
+            _mockFileService.Verify(f => f.DeleteFileAsync(wallpaper.ImageUrl), Times.Once);
+            _mockFileService.Verify(f => f.DeleteFileAsync(wallpaper.ThumbnailUrl), Times.Once);
+            _mockRepo.Verify(r => r.DeleteAsync(wallpaper.Id), Times.Once);
         }
-
-        // Boş title ile POST
-        [Fact]
-        public async Task PostWallpaper_WithEmptyTitle_ReturnsBadRequest()
-        {
-            var invalidWallpaper = new Wallpaper
-            {
-                Title = "",
-                ImageUrl = "http://example.com/valid.jpg"
-            };
-
-            var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        // Boş ImageUrl ile POST
-        [Fact]
-        public async Task PostWallpaper_WithEmptyImageUrl_ReturnsBadRequest()
-        {
-            var invalidWallpaper = new Wallpaper
-            {
-                Title = "Valid Title",
-                ImageUrl = ""
-            };
-
-            var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        // Null object ile POST
-        [Fact]
-        public async Task PostWallpaper_WithNull_ReturnsBadRequest()
-        {
-            Wallpaper? invalidWallpaper = null;
-
-            var response = await _client.PostAsJsonAsync("/api/wallpaper", invalidWallpaper);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        // Yanlış endpoint ile GET
-        [Fact]
-        public async Task GetWallpapers_WrongUrl_ReturnsNotFound()
-        {
-            var response = await _client.GetAsync("/api/wallpapers-wrong");
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
-
-        // GET list test (boş veya dolu)
-        [Fact]
-        public async Task GetWallpapers_ReturnsListSuccessfully()
-        {
-            var response = await _client.GetAsync("/api/wallpaper");
-            response.EnsureSuccessStatusCode();
-
-            var wallpapers = await response.Content.ReadFromJsonAsync<List<Wallpaper>?>();
-            Assert.NotNull(wallpapers);
-            Assert.True(wallpapers!.Count >= 0);
-        }
-
-        //FileService mock Testi
-        [Fact]
-        public async Task FileService_UploadAsync_ReturnsFilePathSuccessfully()
-        {
-            var mockFileService = new Mock<IFileService>();
-            var mockFile = new Mock<IFormFile>();
-
-            mockFileService
-                .Setup(fs => fs.UploadAsync(It.IsAny<IFormFile>(), It.IsAny<string>()))
-                .ReturnsAsync("/uploads/test.jpg");
-
-            var result = await mockFileService.Object.UploadAsync(mockFile.Object, "test");
-            Assert.Equal("/uploads/test.jpg", result);
-        }
-
-
-        //ThumbnailService Mock Testi
-        [Fact]
-        public async Task ThumbnailService_GenerateThumbnailAsync_ReturnsThumbnailPath()
-        {
-            var mockThumbnailService = new Mock<IThumbnailService>();
-            mockThumbnailService
-                .Setup(ts => ts.GenerateThumbnailAsync(It.IsAny<string>()))
-                .ReturnsAsync("/thumbnails/test_thumb.jpg");
-
-            var result = await mockThumbnailService.Object.GenerateThumbnailAsync("image/test.jpg");
-            Assert.Equal("/thumbnails/test_thumb.jpg", result); 
-        }
-
     }
 }
