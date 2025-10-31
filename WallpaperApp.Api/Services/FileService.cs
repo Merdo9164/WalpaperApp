@@ -52,49 +52,60 @@ namespace WallpaperApp.Api.Services
         }
 
         //  Asıl görsel + thumbnail oluşturur, yollarını döner
+        // 5 mb dan büyük yüklenen görselleri uygun hale getirip yükler
         public async Task<(string imageUrl, string thumbnailUrl)> UploadWithThumbnailAsync(IFormFile file, string title)
         {
-            const long maxFileSize = 5 * 1024 * 1024; // 5MB
-            if (file.Length > maxFileSize)
-                throw new Exception("Dosya boyutu 5MB’dan büyük olamaz.");
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("Dosya boş veya yüklenemedi.");
 
-            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic" };
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowed.Contains(ext))
                 throw new ArgumentException("Desteklenmeyen dosya türü.");
 
             var slug = Slugify(title);
-            var fileName = $"{slug}{ext}";
+            var fileName = $"{slug}_{Guid.NewGuid()}.jpg"; //  Hepsini .jpg olarak kaydediyoruz
 
             var wwwroot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
-            //  images klasörüne kaydet
             var imagesPath = Path.Combine(wwwroot, _imagesFolder);
             Directory.CreateDirectory(imagesPath);
             var fullImagePath = Path.Combine(imagesPath, fileName);
 
-            int counter = 1;
-            while (File.Exists(fullImagePath))
-            {
-                fileName = $"{slug}-{counter}{ext}";
-                fullImagePath = Path.Combine(imagesPath, fileName);
-                counter++;
-            }
-
-            using (var stream = new FileStream(fullImagePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            //  thumbnails klasörüne kaydet
             var thumbnailsPath = Path.Combine(wwwroot, _thumbnailsFolder);
             Directory.CreateDirectory(thumbnailsPath);
             var thumbnailFullPath = Path.Combine(thumbnailsPath, fileName);
 
-            await CreateThumbnailAsync(fullImagePath, thumbnailFullPath);
+            //  Görseli oku (ImageSharp destekler)
+            using var image = await Image.LoadAsync(file.OpenReadStream());
 
+            //  Eğer çok büyükse yeniden boyutlandır (örneğin >1920x1080)
+            if (image.Width > 1920 || image.Height > 1080)
+            {
+                var resizeOptions = new ResizeOptions
+                {
+                    Mode = ResizeMode.Max,
+                    Size = new Size(1920, 1080)
+                };
+                image.Mutate(x => x.Resize(resizeOptions));
+            }
+
+            //  Optimize edilip .jpg olarak kaydet
+            await image.SaveAsync(fullImagePath, new JpegEncoder { Quality = 85 });
+
+            // Thumbnail oluştur (200x200)
+            using var thumbnail = image.Clone(x => x.Resize(new ResizeOptions
+            {
+                Mode = ResizeMode.Crop,
+                Size = new Size(200, 200)
+            }));
+
+            await thumbnail.SaveAsync(thumbnailFullPath, new JpegEncoder { Quality = 75 });
+
+            // URL'leri döndür
             return ($"/{_imagesFolder}/{fileName}", $"/{_thumbnailsFolder}/{fileName}");
         }
+
 
         //  URL'den indirip hem ana resmi hem thumbnail'i oluşturur
         public async Task<(string imageUrl, string thumbnailUrl)> DownloadImageAndCreateThumbnailAsync(string imageUrl, string? title = null)
