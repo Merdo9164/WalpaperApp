@@ -64,7 +64,7 @@ namespace WallpaperApp.Api.Services
                 throw new ArgumentException("Desteklenmeyen dosya türü.");
 
             var slug = Slugify(title);
-            var fileName = $"{slug}_{Guid.NewGuid()}.jpg"; //  Hepsini .jpg olarak kaydediyoruz
+            var fileName = $"{slug}{ext}";
 
             var wwwroot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
