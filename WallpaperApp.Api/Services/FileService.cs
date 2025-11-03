@@ -12,6 +12,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WallpaperApp.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Configuration;
 
 
 namespace WallpaperApp.Api.Services
@@ -19,12 +21,15 @@ namespace WallpaperApp.Api.Services
     public class FileService : IFileService
     {
         private readonly IWebHostEnvironment _env;
+
+        private readonly string _baseUrl;
         private readonly string _imagesFolder = "images";
         private readonly string _thumbnailsFolder = "thumbnails";
 
-        public FileService(IWebHostEnvironment env)
+        public FileService(IWebHostEnvironment env , IConfiguration configuration)
         {
             _env = env;
+            _baseUrl = configuration["BaseUrl"] ?? "http://localhost:5000";
         }
 
         // Title'dan güvenli dosya ismi üretir
@@ -106,6 +111,52 @@ namespace WallpaperApp.Api.Services
 
             // URL'leri döndür
             return ($"/{_imagesFolder}/{fileName}", $"/{_thumbnailsFolder}/{fileName}");
+        }
+
+        // toplu görsel yükleme
+        public async Task <List<(string ImageUrl, string ThumbnailUrl)>> UploadMultipleWithThumbnailAsync(List<IFormFile> files , string title)
+        {
+            //Root Path belirleniyor
+            var uploadPath = Path.Combine(_env.WebRootPath, "images", title);
+            var thumbPath = Path.Combine(_env.WebRootPath, "thumbnails", title);
+
+            //klasör yoksa oluştur
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+
+            if (!Directory.Exists(thumbPath))
+                Directory.CreateDirectory(thumbPath);
+
+            //GEri dönecek liste
+            var uploadedFiles = new List<(string ImageUrl, string ThumbnailUrl)>();
+
+            foreach (var file in files)
+            {
+                if (file.Length > 0)
+                {
+                    //Dosya adı oluştur
+                    var fileName = Path.GetFileName(file.FileName);
+                    var imagePath = Path.Combine(uploadPath, fileName);
+                    var thumbFilePath = Path.Combine(thumbPath, fileName);
+
+                    //Dosyayı kaydet
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    //Thumbnail oluştur
+                    System.IO.File.Copy(imagePath, thumbFilePath, true);
+
+                    //Url leri hazırla
+                    var imageUrl = $"{_baseUrl}/images/{title}/{fileName}";
+                    var thumbUrl = $"{_baseUrl}/thumbnails/{title}/{fileName}";
+
+                    uploadedFiles.Add((imageUrl, thumbUrl));
+                }
+            }  
+
+            return uploadedFiles;  
         }
 
 
@@ -207,6 +258,11 @@ namespace WallpaperApp.Api.Services
         }
 
         public Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(string ImageUrl, string ThumbnailUrl)> UploadMultipleWithThumbnailAsync(IFormFile file, string title)
         {
             throw new NotImplementedException();
         }
