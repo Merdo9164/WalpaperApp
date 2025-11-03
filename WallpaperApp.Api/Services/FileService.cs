@@ -63,6 +63,8 @@ namespace WallpaperApp.Api.Services
             if (!allowed.Contains(ext))
                 throw new ArgumentException("Desteklenmeyen dosya türü.");
 
+
+            //url leri title olarak döndür
             var slug = Slugify(title);
             var fileName = $"{slug}{ext}";
 
