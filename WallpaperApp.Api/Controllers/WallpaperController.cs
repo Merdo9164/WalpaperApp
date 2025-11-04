@@ -24,10 +24,19 @@ namespace WallpaperApp.Api.Controllers
 
         // GET: api/wallpaper
         [HttpGet]
-        public async Task<IActionResult> GetWallpapers()
+        public async Task<IActionResult> GetWallpapers([FromQuery] string? title)
         {
             var wallpapers = await _repository.GetAllAsync();
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            //Filtreleme 
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                wallpapers = wallpapers
+                    .Where(w => w.Title.Equals(title, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                
+            }
 
             var list = wallpapers.Select(w => new
             {

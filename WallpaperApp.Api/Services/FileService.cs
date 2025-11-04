@@ -220,13 +220,34 @@ namespace WallpaperApp.Api.Services
 
             try
             {
-                var fileName = Path.GetFileName(imageUrl);
+                var uri = new Uri(imageUrl, UriKind.RelativeOrAbsolute);
+                var relativePath = uri.IsAbsoluteUri ? uri.AbsolutePath : imageUrl;
+                relativePath = relativePath.TrimStart('/');
+
+                
                 var wwwroot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
-                var fullPath = Path.Combine(wwwroot, imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                var fullPath = Path.Combine(wwwroot, relativePath.Replace('/', Path.DirectorySeparatorChar));
+
+                var thumbPath = fullPath.Replace(Path.Combine("images", ""), Path.Combine("thumbnails", ""));
+
 
                 if (File.Exists(fullPath))
                     File.Delete(fullPath);
+
+                if (File.Exists(thumbPath))
+                    File.Delete(thumbPath);
+
+                //klasör temizliği (boşsa sil)
+                var directory = Path.GetDirectoryName(fullPath);
+                if(!string.IsNullOrEmpty(directory) && Directory.Exists(directory))
+                {
+                    if(!Directory.EnumerateFileSystemEntries(directory).Any())
+                    {
+                        Directory.Delete(directory);
+                        Console.WriteLine($"Boş Klasör Silindi: {directory}");
+                    }
+                }
 
                 await Task.CompletedTask;
             }
