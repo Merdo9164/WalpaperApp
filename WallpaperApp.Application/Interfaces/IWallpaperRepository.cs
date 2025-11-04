@@ -7,6 +7,9 @@ namespace WallpaperApp.Application.Interfaces
         Task<IEnumerable<Wallpaper>> GetAllAsync();
         Task<Wallpaper> AddAsync(Wallpaper wallpaper); //ekleme metodu
         Task<Wallpaper?> GetByIdAsync(Guid id);
+        Task UpdateAsync(Wallpaper wallpaper);
+
         Task DeleteAsync(Guid id);
+
     }
 }

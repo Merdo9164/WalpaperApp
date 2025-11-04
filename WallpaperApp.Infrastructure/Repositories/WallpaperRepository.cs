@@ -42,6 +42,13 @@ namespace WallpaperApp.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpdateAsync(Wallpaper wallpaper)
+        {
+            _context.Wallpapers.Update(wallpaper);
+            await _context.SaveChangesAsync();
+        }
+
+
         public async Task<bool> DeleteAsync(Guid id)
         {
             var wallpaper = await _context.Wallpapers.FirstOrDefaultAsync(w => w.Id == id);

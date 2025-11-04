@@ -31,7 +31,7 @@ namespace WallpaperApp.Api.Services
         }
 
         // Title'dan güvenli dosya ismi üretir
-        private string Slugify(string input)
+        public string Slugify(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
                 input = Guid.NewGuid().ToString();
