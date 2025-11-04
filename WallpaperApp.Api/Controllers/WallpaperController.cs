@@ -68,15 +68,25 @@ namespace WallpaperApp.Api.Controllers
             if (string.IsNullOrWhiteSpace(dto.Title))
                 return BadRequest("Title cannot be empty.");
 
-            if (dto.Image == null || dto.Image.Length == 0)
-                return BadRequest("Image file is required.");
+            //Tekli veya çoklu dosya var mı kontrol et
+            if ((dto.Images == null || dto.Images.Count == 0) && (dto.Image == null))
+                return BadRequest(" At least one Image file is required.");
 
-            string imageUrl, thumbnailUrl;
+            var uploadedResults = new List<(string ImageUrl, string ThumbnailUrl)>();    
 
             try
             {
-                // Hem ana görseli hem thumbnail’i oluştur
-                (imageUrl, thumbnailUrl) = await _fileService.UploadWithThumbnailAsync(dto.Image, dto.Title);
+                // Çoklu dosya varsa -klasörlü sistemle kaydet
+                if (dto.Images != null && dto.Images.Count > 0)
+                {
+                    uploadedResults = await _fileService.UploadMultipleWithThumbnailAsync(dto.Images, dto.Title);
+                }
+                else if (dto.Image != null)
+                {
+                    //Tekli dosya varsa
+                    var singleResult = await _fileService.UploadWithThumbnailAsync(dto.Image, dto.Title);
+                    uploadedResults.Add(singleResult);
+                }
             }
             catch (ArgumentException ex)
             {
@@ -87,25 +97,36 @@ namespace WallpaperApp.Api.Controllers
                 return StatusCode(500, "Yükleme sırasında hata: " + ex.Message);
             }
 
-            var wallpaper = new Wallpaper
+            //Veri tabanına kayıt
+
+            var wallpapers = new List<Wallpaper>();
+            foreach (var (imageUrl, thumbnailUrl) in uploadedResults)
             {
-                Id = Guid.NewGuid(),
-                Title = dto.Title,
-                ImageUrl = imageUrl,
-                ThumbnailUrl = thumbnailUrl
-            };
+                var wallpaper = new Wallpaper
+                {
+                    Id = Guid.NewGuid(),
+                    Title = dto.Title,
+                    ImageUrl = imageUrl,
+                    ThumbnailUrl = thumbnailUrl
+                };
+                wallpapers.Add(wallpaper);
+                await _repository.AddAsync(wallpaper);
 
-            await _repository.AddAsync(wallpaper);
+            }
 
+            //Cevap Döndür
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
-
-            return CreatedAtAction(nameof(GetWallpaper), new { id = wallpaper.Id }, new
+            var response = wallpapers.Select(w => new
             {
-                wallpaper.Id,
-                wallpaper.Title,
-                ImageUrl = $"{baseUrl}{imageUrl}",
-                ThumbnailUrl = $"{baseUrl}{thumbnailUrl}"
+                w.Id,
+                w.Title,
+                ImageUrl = $"{baseUrl}{w.ImageUrl}",
+                ThumbnailUrl = $"{baseUrl}{w.ThumbnailUrl}"
+
             });
+
+            return Created(string.Empty, response);
+            
         }
 
         // POST: api/wallpaper/download-from-url

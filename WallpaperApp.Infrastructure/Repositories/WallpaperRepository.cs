@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WallpaperApp.Domain.Entities;
 using WallpaperApp.Application.Interfaces;
 using WallpaperApp.Infrastructure.Data;
+using System.Collections;
 
 namespace WallpaperApp.Infrastructure.Repositories
 {
@@ -32,6 +33,13 @@ namespace WallpaperApp.Infrastructure.Repositories
         public async Task<Wallpaper?> GetByIdAsync(Guid id)
         {
             return await _context.Wallpapers.FirstOrDefaultAsync(w => w.Id == id);
+        }
+
+        // Birden fazla nesne ekleme
+        public async Task AddRangeAsync(IEnumerable<Wallpaper> wallpapers)
+        {
+            await _context.Wallpapers.AddRangeAsync(wallpapers);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(Guid id)

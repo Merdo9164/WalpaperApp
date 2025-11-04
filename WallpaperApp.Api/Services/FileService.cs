@@ -22,14 +22,12 @@ namespace WallpaperApp.Api.Services
     {
         private readonly IWebHostEnvironment _env;
 
-        private readonly string _baseUrl;
         private readonly string _imagesFolder = "images";
         private readonly string _thumbnailsFolder = "thumbnails";
 
         public FileService(IWebHostEnvironment env , IConfiguration configuration)
         {
             _env = env;
-            _baseUrl = configuration["BaseUrl"] ?? "http://localhost:5000";
         }
 
         // Title'dan güvenli dosya ismi üretir
@@ -116,6 +114,7 @@ namespace WallpaperApp.Api.Services
         // toplu görsel yükleme
         public async Task <List<(string ImageUrl, string ThumbnailUrl)>> UploadMultipleWithThumbnailAsync(List<IFormFile> files , string title)
         {
+            title = Slugify(title);
             //Root Path belirleniyor
             var uploadPath = Path.Combine(_env.WebRootPath, "images", title);
             var thumbPath = Path.Combine(_env.WebRootPath, "thumbnails", title);
@@ -145,12 +144,12 @@ namespace WallpaperApp.Api.Services
                         await file.CopyToAsync(stream);
                     }
 
-                    //Thumbnail oluştur
+                    //Thumbnail oluştur 
                     System.IO.File.Copy(imagePath, thumbFilePath, true);
 
                     //Url leri hazırla
-                    var imageUrl = $"{_baseUrl}/images/{title}/{fileName}";
-                    var thumbUrl = $"{_baseUrl}/thumbnails/{title}/{fileName}";
+                    var imageUrl = $"/images/{title}/{fileName}";
+                    var thumbUrl = $"/thumbnails/{title}/{fileName}";
 
                     uploadedFiles.Add((imageUrl, thumbUrl));
                 }
