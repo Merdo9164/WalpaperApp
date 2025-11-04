@@ -167,6 +167,38 @@ namespace WallpaperApp.Api.Controllers
             }
         }
 
+        // PUT: api/wallpaper/update
+        [HttpPut("{id}")]
+        public async Task<IActionResult>UpdateWallpaper(Guid id,[FromBody] UpdateWallpaperDto dto)
+        {
+            var wallpaper = await _repository.GetByIdAsync(id);
+            if (wallpaper == null)
+                return NotFound("Görsel bulunamadı.");
+
+            // Yeni title ve slug
+            wallpaper.Title = dto.Title;
+            var slug = _fileService.Slugify(dto.Title);
+
+            // Mevcut dosya uzantısını koru
+            var imageExt = Path.GetExtension(wallpaper.ImageUrl);
+            wallpaper.ImageUrl = $"/images/{slug}{imageExt}";
+            wallpaper.ThumbnailUrl = $"/thumbnails/{slug}{imageExt}";
+
+            await _repository.UpdateAsync(wallpaper);
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            return Ok(new
+            {
+                wallpaper.Id,
+                wallpaper.Title,
+                ImageUrl = $"{baseUrl}{wallpaper.ImageUrl}",
+                ThumbnailUrl = $"{baseUrl}{wallpaper.ThumbnailUrl}"
+            });
+        }
+
+
+
         // DELETE: api/wallpaper/{id}
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteWallpaper(Guid id)

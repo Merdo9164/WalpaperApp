@@ -8,12 +8,13 @@ namespace WallpaperApp.Api.Services
         /// <summary>
         /// Formdan yüklenen bir resmi sunucuya kaydeder ve URL’sini döner.
         /// </summary>
-        Task<string> UploadAsync(IFormFile file ,string title);
+        Task<string> UploadAsync(IFormFile file, string title);
 
         /// <summary>
         /// URL’den resmi indirir, doğrular ve sunucuya kaydeder. 
         /// Kaydedilen dosyanın URL’sini döner.
         /// </summary>
+        string Slugify(string input);
         Task<string> DownloadImageFromUrlAndSaveAsync(string imageUrl);
         Task DeleteFileAsync(string? imageUrl);
         Task<(string imageUrl, string thumbnailUrl)> UploadWithThumbnailAsync(IFormFile file, string title);
