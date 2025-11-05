@@ -19,8 +19,10 @@ namespace WallpaperApp.Api.Services
         Task DeleteFileAsync(string? imageUrl);
         Task<(string imageUrl, string thumbnailUrl)> UploadWithThumbnailAsync(IFormFile file, string title);
         Task<(string imageUrl, string thumbnailUrl)> DownloadImageAndCreateThumbnailAsync(string imageUrl, string title);
-        
+
         Task<List<(string ImageUrl, string ThumbnailUrl)>> UploadMultipleWithThumbnailAsync(List<IFormFile> files, string title);
+        
+        Task UpdateNewTitleAsync(string oldTitle, string newTitle);
         
 
     }
