@@ -214,8 +214,6 @@ namespace WallpaperApp.Api.Controllers
             });
         }
 
-
-
         // DELETE: api/wallpaper/{id}
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteWallpaper(Guid id)
