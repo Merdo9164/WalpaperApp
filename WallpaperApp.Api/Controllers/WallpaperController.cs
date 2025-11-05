@@ -29,13 +29,17 @@ namespace WallpaperApp.Api.Controllers
             var wallpapers = await _repository.GetAllAsync();
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-            //Filtreleme 
+            // Filtreleme 
             if (!string.IsNullOrWhiteSpace(title))
             {
+                var slugTitle = _fileService.Slugify(title);
                 wallpapers = wallpapers
-                    .Where(w => w.Title.Equals(title, StringComparison.OrdinalIgnoreCase))
+                    .Where(w =>
+                        w.Title.Equals(title, StringComparison.OrdinalIgnoreCase) ||
+                        (!string.IsNullOrEmpty(w.ImageUrl) &&
+                        w.ImageUrl.Contains($"/images/{slugTitle}", StringComparison.OrdinalIgnoreCase))
+                    )
                     .ToList();
-                
             }
 
             var list = wallpapers.Select(w => new
@@ -48,6 +52,7 @@ namespace WallpaperApp.Api.Controllers
 
             return Ok(list);
         }
+
 
         // GET: api/wallpaper/{id}
         [HttpGet("{id:guid}")]
@@ -167,26 +172,38 @@ namespace WallpaperApp.Api.Controllers
             }
         }
 
-        // PUT: api/wallpaper/update
-        [HttpPut("{id}")]
-        public async Task<IActionResult>UpdateWallpaper(Guid id,[FromBody] UpdateWallpaperDto dto)
+        // PUT: api/wallpaper/update/{id}
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateWallpaper(Guid id, [FromBody] UpdateWallpaperDto dto)
         {
             var wallpaper = await _repository.GetByIdAsync(id);
             if (wallpaper == null)
                 return NotFound("Görsel bulunamadı.");
 
-            // Yeni title ve slug
-            wallpaper.Title = dto.Title;
-            var slug = _fileService.Slugify(dto.Title);
-
-            // Mevcut dosya uzantısını koru
-            var imageExt = Path.GetExtension(wallpaper.ImageUrl);
-            wallpaper.ImageUrl = $"/images/{slug}{imageExt}";
-            wallpaper.ThumbnailUrl = $"/thumbnails/{slug}{imageExt}";
-
-            await _repository.UpdateAsync(wallpaper);
-
+            var oldTitle = wallpaper.Title;
+            var newTitle = dto.Title;
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            //  Fiziksel dosya adını değiştir (dosya aynı yerde kalır)
+            await _fileService.UpdateNewTitleAsync(oldTitle, newTitle);
+
+            //  Yeni slug oluştur
+            var newSlug = _fileService.Slugify(newTitle);
+
+            //  Eski URL’den dizin adını çıkar
+            var imageExt = Path.GetExtension(wallpaper.ImageUrl);
+            var imageDir = Path.GetDirectoryName(wallpaper.ImageUrl.Replace('/', Path.DirectorySeparatorChar))!
+                .Replace(Path.DirectorySeparatorChar, '/');
+
+            var thumbExt = Path.GetExtension(wallpaper.ThumbnailUrl);
+
+            //  Yeni URL’leri oluştur (aynı klasörde kalır)
+            wallpaper.ImageUrl = $"{imageDir}/{newSlug}{imageExt}";
+            wallpaper.ThumbnailUrl = $"{imageDir.Replace("/images", "/thumbnails")}/{newSlug}{thumbExt}";
+            wallpaper.Title = newTitle;
+
+            //  Veritabanında güncelle
+            await _repository.UpdateAsync(wallpaper);
 
             return Ok(new
             {

@@ -21,11 +21,12 @@ namespace WallpaperApp.Api.Services
     public class FileService : IFileService
     {
         private readonly IWebHostEnvironment _env;
+        
 
         private readonly string _imagesFolder = "images";
         private readonly string _thumbnailsFolder = "thumbnails";
 
-        public FileService(IWebHostEnvironment env , IConfiguration configuration)
+        public FileService(IWebHostEnvironment env )
         {
             _env = env;
         }
@@ -114,46 +115,55 @@ namespace WallpaperApp.Api.Services
         // toplu görsel yükleme
         public async Task <List<(string ImageUrl, string ThumbnailUrl)>> UploadMultipleWithThumbnailAsync(List<IFormFile> files , string title)
         {
-            title = Slugify(title);
+            if (files == null || files.Count == 0)
+                throw new ArgumentException("At least one image file is required.");
+
+
             //Root Path belirleniyor
-            var uploadPath = Path.Combine(_env.WebRootPath, "images", title);
-            var thumbPath = Path.Combine(_env.WebRootPath, "thumbnails", title);
+            var slugTitle = Slugify(title);
+            var uploadPath = Path.Combine(_env.WebRootPath, "images", slugTitle);
+            var thumbPath = Path.Combine(_env.WebRootPath, "thumbnails", slugTitle);
 
-            //klasör yoksa oluştur
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-
-            if (!Directory.Exists(thumbPath))
-                Directory.CreateDirectory(thumbPath);
+            Directory.CreateDirectory(uploadPath);
+            Directory.CreateDirectory(thumbPath);
 
             //GEri dönecek liste
             var uploadedFiles = new List<(string ImageUrl, string ThumbnailUrl)>();
 
             foreach (var file in files)
             {
-                if (file.Length > 0)
+                if (file.Length <= 0)
+                    continue;
+
+                // Dosya adı güvenli hale getir
+                var originalName = Path.GetFileNameWithoutExtension(file.FileName);
+                var ext = Path.GetExtension(file.FileName);
+                var safeName = Slugify(originalName) + ext;
+
+                var imagePath = Path.Combine(uploadPath, safeName);
+                var thumbFilePath = Path.Combine(thumbPath, safeName);
+
+                // Görseli kaydet
+                using (var stream = new FileStream(imagePath, FileMode.Create))
                 {
-                    //Dosya adı oluştur
-                    var fileName = Path.GetFileName(file.FileName);
-                    var imagePath = Path.Combine(uploadPath, fileName);
-                    var thumbFilePath = Path.Combine(thumbPath, fileName);
-
-                    //Dosyayı kaydet
-                    using (var stream = new FileStream(imagePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    //Thumbnail oluştur 
-                    System.IO.File.Copy(imagePath, thumbFilePath, true);
-
-                    //Url leri hazırla
-                    var imageUrl = $"/images/{title}/{fileName}";
-                    var thumbUrl = $"/thumbnails/{title}/{fileName}";
-
-                    uploadedFiles.Add((imageUrl, thumbUrl));
+                    await file.CopyToAsync(stream);
                 }
-            }  
+
+                // Thumbnail oluştur 
+                using (var image = Image.Load(file.OpenReadStream()))
+                {
+                    int thumbWidth = 300;
+                    int thumbHeight = (int)(image.Height * (thumbWidth / (float)image.Width));
+                    image.Mutate(x => x.Resize(thumbWidth, thumbHeight));
+                    image.Save(thumbFilePath);
+                }
+
+                // URL'leri hazırla
+                var imageUrl = $"/images/{slugTitle}/{safeName}";
+                var thumbUrl = $"/thumbnails/{slugTitle}/{safeName}";
+
+                uploadedFiles.Add((imageUrl, thumbUrl));
+            }
 
             return uploadedFiles;  
         }
@@ -211,6 +221,61 @@ namespace WallpaperApp.Api.Services
             return ($"/{_imagesFolder}/{Path.GetFileName(fullImagePath)}",
                     $"/{_thumbnailsFolder}/{Path.GetFileName(fullImagePath)}");
         }
+        //update 
+        public async Task UpdateNewTitleAsync(string oldTitle, string newTitle)
+        {
+            if (string.IsNullOrWhiteSpace(oldTitle) || string.IsNullOrWhiteSpace(newTitle))
+                return;
+
+            var wwwroot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+            var oldSlug = Slugify(oldTitle);
+            var newSlug = Slugify(newTitle);
+
+            var imageRoot = Path.Combine(wwwroot, "images");
+            var thumbRoot = Path.Combine(wwwroot, "thumbnails");
+
+            // Images klasöründeki tüm alt klasörleri tarar
+            var imageFiles = Directory.GetFiles(imageRoot, "*.*", SearchOption.AllDirectories)
+                .Where(f => Path.GetFileNameWithoutExtension(f).Contains(oldSlug, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            foreach (var file in imageFiles)
+            {
+                var ext = Path.GetExtension(file);
+                var dir = Path.GetDirectoryName(file)!;
+                var newFilePath = Path.Combine(dir, newSlug + ext);
+
+                // Eğer aynı isimde dosya yoksa yeniden adlandır
+                if (!File.Exists(newFilePath))
+                {
+                    File.Move(file, newFilePath);
+                    Console.WriteLine($"[UpdateNewTitleAsync] Image renamed: {file} -> {newFilePath}");
+                }
+            }
+
+            // Thumbnails klasörünü de aynı şekilde kontrol eder
+            var thumbFiles = Directory.GetFiles(thumbRoot, "*.*", SearchOption.AllDirectories)
+                .Where(f => Path.GetFileNameWithoutExtension(f).Contains(oldSlug, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            foreach (var file in thumbFiles)
+            {
+                var ext = Path.GetExtension(file);
+                var dir = Path.GetDirectoryName(file)!;
+                var newFilePath = Path.Combine(dir, newSlug + ext);
+
+                if (!File.Exists(newFilePath))
+                {
+                    File.Move(file, newFilePath);
+                    Console.WriteLine($"[UpdateNewTitleAsync] Thumbnail renamed: {file} -> {newFilePath}");
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+
+
 
         //  Dosya siler
         public async Task DeleteFileAsync(string? imageUrl)
