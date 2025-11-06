@@ -10,6 +10,7 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
+  actions: read
 
 jobs:
   build-and-test:
@@ -63,6 +64,6 @@ jobs:
         uses: dorny/test-reporter@v1
         with:
           name: .NET Test Results
-          path: TestResults/**/*.trx
+          path: '**/TestResults/*.trx'
           reporter: dotnet-trx
 
