@@ -46,7 +46,7 @@ namespace WallpaperApp.Tests
             _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(wallpapers);
 
             // Act
-            var result = await _controller.GetWallpapers() as OkObjectResult;
+            var result = await _controller.GetWallpapers(null) as OkObjectResult;
 
             // Assert
             result.Should().NotBeNull();
@@ -79,13 +79,36 @@ namespace WallpaperApp.Tests
             _mockFileService.Setup(f => f.UploadWithThumbnailAsync(It.IsAny<IFormFile>(), It.IsAny<string>()))
                 .ReturnsAsync(("/images/test.jpg", "/thumbnails/test.jpg"));
 
+            _mockRepo
+                .Setup(r => r.AddAsync(It.IsAny<Wallpaper>()))
+                .ReturnsAsync((Wallpaper w) => w);
+
+
+            if (_controller.ControllerContext == null)
+            {
+                _controller.ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                };
+            }
+            _controller.ControllerContext.HttpContext.Request.Scheme = "http";
+            _controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost");
+
+  
+
             // Act
-            var result = await _controller.UploadWallpaper(dto) as CreatedAtActionResult;
+            var actionResult = await _controller.UploadWallpaper(dto);
 
             // Assert
-            result.Should().NotBeNull();
-            result!.Value.Should().NotBeNull();
+            actionResult.Should().NotBeNull();
+            actionResult.Should().BeOfType<CreatedResult>();
+            var created = actionResult as CreatedResult;
+            created!.Value.Should().NotBeNull();
+
+
             _mockRepo.Verify(r => r.AddAsync(It.IsAny<Wallpaper>()), Times.Once);
+
+            var returned = created.Value as dynamic;
         }
 
         [Fact]

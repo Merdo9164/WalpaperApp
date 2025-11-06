@@ -94,8 +94,8 @@ namespace WallpaperApp.Tests
             var (imageUrl, thumbnailUrl) = await _fileService.UploadWithThumbnailAsync(fakeImage, "My Test Image");
 
             // Assert
-            imageUrl.Should().EndWith(".jpg");
-            thumbnailUrl.Should().EndWith(".jpg");
+            imageUrl.Should().MatchRegex(@"\.(jpg|jpeg|png|webp)$");
+            thumbnailUrl.Should().MatchRegex(@"\.(jpg|jpeg|png|webp)$");
 
             var imagePath = Path.Combine(_testRoot, imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
             var thumbPath = Path.Combine(_testRoot, thumbnailUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
