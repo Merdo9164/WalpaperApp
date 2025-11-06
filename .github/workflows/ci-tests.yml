@@ -5,7 +5,7 @@ on:
     branches: [ "**" ]
   pull_request:
     branches: [ "**" ]
-    
+
 permissions:
   contents: read
   checks: write
@@ -57,3 +57,12 @@ jobs:
         with:
           name: test-results
           path: TestResults
+
+      - name: Publish test results summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: .NET Test Results
+          path: TestResults/**/*.trx
+          reporter: dotnet-trx
+
