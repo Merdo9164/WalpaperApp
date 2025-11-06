@@ -94,8 +94,6 @@ namespace WallpaperApp.Tests
             _controller.ControllerContext.HttpContext.Request.Scheme = "http";
             _controller.ControllerContext.HttpContext.Request.Host = new HostString("localhost");
 
-  
-
             // Act
             var actionResult = await _controller.UploadWallpaper(dto);
 
