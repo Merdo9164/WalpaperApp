@@ -35,7 +35,7 @@ jobs:
       - name: Run tests and produce TRX result
         run: |
           mkdir -p TestResults
-          dotnet test --no-build --configuration Release --logger "trx;LogFileName=TestResults/results.trx"
+          dotnet test --no-build --configuration Release --logger "trx;LogFileName=results.trx" --results-directory ./TestResults
         continue-on-error: false
 
       - name: Publish test results summary
