@@ -2,9 +2,15 @@ name: .NET CI - Build & Tests
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "**" ]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+  actions: read
 
 jobs:
   build-and-test:
@@ -35,8 +41,16 @@ jobs:
       - name: Run tests and produce TRX result
         run: |
           mkdir -p TestResults
-          dotnet test --no-build --configuration Release --logger "trx;LogFileName=TestResults/results.trx"
+          dotnet test --no-build --configuration Release --logger "trx;LogFileName=results.trx" --results-directory ./TestResults
         continue-on-error: false
+
+      - name: Publish test results summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: .NET Tests
+          path: TestResults/results.trx
+          reporter: dotnet-trx
 
       - name: Upload test results artifact
         if: always()
@@ -44,3 +58,13 @@ jobs:
         with:
           name: test-results
           path: TestResults
+
+
+      - name: Publish test results summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: .NET Test Results
+          path: '**/TestResults/*.trx'
+          reporter: dotnet-trx
+
