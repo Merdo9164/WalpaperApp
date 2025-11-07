@@ -29,7 +29,7 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Publish project
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish ./WallpaperApp.Api/WallpaperApp.Api.csproj -c Release
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.3
@@ -37,5 +37,5 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./publish
+          local-dir: ./WallpaperApp.Api/bin/Release/net8.0/publish/
           server-dir: /httpdocs/
